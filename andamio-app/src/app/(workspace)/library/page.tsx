@@ -1,7 +1,6 @@
 import { LibrarySearchPanel } from "@/components/library-search-panel";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
-import { StatusBadge } from "@/components/status-badge";
 import { loadAppData } from "@/lib/app-data";
 import { NONE_FILTER_VALUE } from "@/lib/library-filters";
 import { normalizeForSearch } from "@/lib/utils";
@@ -20,6 +19,7 @@ interface LibraryPageProps {
     kind?: string;
     scope?: string;
     visibility?: string;
+    sort?: string;
   }>;
 }
 
@@ -27,6 +27,12 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
   const data = await loadAppData();
   const filters = searchParams ? await searchParams : undefined;
   const normalizedQuery = normalizeForSearch(filters?.q ?? "");
+  const uploadedAtFormatter = new Intl.DateTimeFormat("es-AR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   const filteredFiles = data.libraryFiles.filter((file) => {
     const institution = file.institutionId
@@ -108,14 +114,16 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
     );
 
     return searchText.includes(normalizedQuery);
+  }).sort((left, right) => {
+    switch (filters?.sort) {
+      case "oldest":
+        return new Date(left.uploadedAt).getTime() - new Date(right.uploadedAt).getTime();
+      case "name":
+        return left.title.localeCompare(right.title);
+      default:
+        return new Date(right.uploadedAt).getTime() - new Date(left.uploadedAt).getTime();
+    }
   });
-
-  const filesByKind = Object.entries(
-    filteredFiles.reduce<Record<string, number>>((accumulator, file) => {
-      accumulator[file.kind] = (accumulator[file.kind] ?? 0) + 1;
-      return accumulator;
-    }, {}),
-  );
 
   return (
     <div className="space-y-6">
@@ -138,47 +146,20 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         />
       </SectionCard>
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.2fr]">
-        <SectionCard
-          eyebrow="Resumen"
-          title={`${filteredFiles.length} archivo${filteredFiles.length === 1 ? "" : "s"} encontrado${filteredFiles.length === 1 ? "" : "s"}`}
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            {filesByKind.length ? (
-              filesByKind.map(([kind, count]) => (
-                <article
-                  className="rounded-[26px] border border-[rgba(76,63,97,0.08)] bg-white/80 p-6"
-                  key={kind}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--foreground)]">
-                        {kind}
-                      </p>
-                      <p className="mt-2 text-base muted-copy">
-                        archivos filtrados
-                      </p>
-                    </div>
-                    <span className="text-4xl font-semibold text-[var(--foreground)]">
-                      {count}
-                    </span>
-                  </div>
-                </article>
-              ))
-            ) : (
-              <article className="rounded-[26px] bg-[rgba(227,170,157,0.2)] p-6 text-base leading-7 text-[var(--foreground)] md:col-span-2">
-                No encontramos archivos con esos filtros. Proba cambiando el
-                colegio, el grado, la materia o el texto de busqueda.
-              </article>
-            )}
-          </div>
-        </SectionCard>
+      <SectionCard
+        eyebrow="Explorador"
+        title={`${filteredFiles.length} archivo${filteredFiles.length === 1 ? "" : "s"}`}
+      >
+        {filteredFiles.length ? (
+          <div className="explorer-shell bg-white/80">
+            <div className="explorer-header hidden gap-4 px-5 py-4 text-sm font-semibold text-[var(--foreground)] md:grid md:grid-cols-[minmax(0,2.5fr)_0.85fr_0.95fr_1fr_auto]">
+              <p>Archivo</p>
+              <p>Tipo</p>
+              <p>Materia</p>
+              <p>Subido</p>
+              <p className="text-right">Accion</p>
+            </div>
 
-        <SectionCard
-          eyebrow="Resultados"
-          title="Archivos encontrados"
-        >
-          <div className="space-y-3">
             {filteredFiles.map((file) => {
               const institution = file.institutionId
                 ? data.institutions.find((item) => item.id === file.institutionId)
@@ -191,52 +172,48 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
                 : null;
 
               return (
-                <article
-                  className="rounded-[26px] border border-[rgba(76,63,97,0.08)] bg-white/80 p-5"
-                  key={file.id}
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--foreground)]">
+                <article className="explorer-row px-4 py-4 md:px-5" key={file.id}>
+                  <div className="grid gap-4 md:grid-cols-[minmax(0,2.5fr)_0.85fr_0.95fr_1fr_auto] md:items-center">
+                    <div className="min-w-0">
+                      <p className="truncate text-base font-semibold text-[var(--foreground)]">
                         {file.title}
                       </p>
-                      <p className="mt-2 text-base muted-copy">
-                        {file.subject} - {file.year} - {file.sizeLabel}
-                      </p>
-                      <p className="mt-3 text-base text-[var(--foreground)]">
-                        {institution?.name ?? "Sin colegio / general"}{" "}
-                        {course ? `- ${course.name}` : ""}
+                      <p className="mt-1 text-sm muted-copy">
+                        {file.sizeLabel} · {file.visibility} · {file.uploadedBy}
                       </p>
                       <p className="mt-2 text-sm muted-copy">
-                        {file.gradeLabel ? `Grado: ${file.gradeLabel} - ` : ""}
+                        {institution?.name ?? "Sin colegio / general"}
+                        {course ? ` · ${course.name}` : ""}
+                        {file.gradeLabel ? ` · ${file.gradeLabel}` : ""}
                         {student
-                          ? `Alumno: ${student.firstName} ${student.lastName}`
-                          : `Alcance: ${file.scope}`}{" "}
-                        - Subido por {file.uploadedBy}
+                          ? ` · ${student.firstName} ${student.lastName}`
+                          : ` · ${file.scope}`}
                       </p>
                     </div>
 
-                    <div className="flex flex-col items-start gap-3 sm:items-end">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {file.gradeLabel ? (
-                          <StatusBadge tone="neutral">{file.gradeLabel}</StatusBadge>
-                        ) : null}
-                        <StatusBadge tone="neutral">{file.kind}</StatusBadge>
-                        <StatusBadge tone="success">{file.scope}</StatusBadge>
-                        <StatusBadge
-                          tone={file.visibility === "Privado" ? "warning" : "accent"}
-                        >
-                          {file.visibility}
-                        </StatusBadge>
-                      </div>
+                    <div className="text-sm text-[var(--foreground)]">
+                      <span className="md:hidden font-semibold">Tipo: </span>
+                      {file.kind}
+                    </div>
 
+                    <div className="text-sm text-[var(--foreground)]">
+                      <span className="md:hidden font-semibold">Materia: </span>
+                      {file.subject}
+                    </div>
+
+                    <div className="text-sm text-[var(--foreground)]">
+                      <span className="md:hidden font-semibold">Subido: </span>
+                      {uploadedAtFormatter.format(new Date(file.uploadedAt))}
+                    </div>
+
+                    <div className="flex justify-start md:justify-end">
                       <a
-                        className="secondary-button text-base"
+                        className="secondary-button px-4 py-2.5 text-sm"
                         href={`/api/files/${file.id}`}
                         rel="noreferrer"
                         target="_blank"
                       >
-                        Abrir o descargar
+                        Abrir
                       </a>
                     </div>
                   </div>
@@ -244,8 +221,12 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
               );
             })}
           </div>
-        </SectionCard>
-      </div>
+        ) : (
+          <div className="rounded-[24px] border border-dashed border-[rgba(76,63,97,0.14)] bg-white/70 px-5 py-8 text-base muted-copy">
+            No encontramos archivos con esos filtros.
+          </div>
+        )}
+      </SectionCard>
     </div>
   );
 }

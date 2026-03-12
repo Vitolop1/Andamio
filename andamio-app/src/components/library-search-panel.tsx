@@ -20,6 +20,7 @@ interface LibrarySearchPanelProps {
     kind?: string;
     scope?: string;
     visibility?: string;
+    sort?: string;
   };
   compact?: boolean;
 }
@@ -39,7 +40,7 @@ export function LibrarySearchPanel({
 
   return (
     <form action={action} className="space-y-4">
-      <div className={`grid gap-4 ${compact ? "lg:grid-cols-2" : "lg:grid-cols-4"}`}>
+      <div className={`grid gap-4 ${compact ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
         <label className={compact ? "block lg:col-span-2" : "block lg:col-span-4"}>
           <span className="form-label">Buscar archivo</span>
           <input
@@ -49,6 +50,15 @@ export function LibrarySearchPanel({
             placeholder="Ej: 1er grado, Santa Maria, lectura, informe..."
             type="text"
           />
+        </label>
+
+        <label className="block">
+          <span className="form-label">Orden</span>
+          <select className="input-field" defaultValue={values?.sort ?? "recent"} name="sort">
+            <option value="recent">Mas nuevos</option>
+            <option value="oldest">Mas viejos</option>
+            <option value="name">Nombre</option>
+          </select>
         </label>
 
         <label className="block">

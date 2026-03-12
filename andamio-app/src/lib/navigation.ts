@@ -6,6 +6,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   School,
+  Settings2,
   Upload,
   UsersRound,
 } from "lucide-react";
@@ -59,5 +60,10 @@ export const secondaryNavigationItems: NavigationItem[] = [
     href: "/professionals",
     label: "Accesos",
     icon: UsersRound,
+  },
+  {
+    href: "/settings",
+    label: "Configuracion",
+    icon: Settings2,
   },
 ];

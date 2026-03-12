@@ -122,6 +122,36 @@ export default async function StudentDetailPage({
             </p>
             <p className="mt-3 text-base leading-8 muted-copy">{student.notes}</p>
           </article>
+
+          <article className="mt-4 rounded-[26px] border border-[rgba(76,63,97,0.08)] bg-white/80 p-6">
+            <p className="text-base font-semibold text-[var(--foreground)]">
+              Acceso del alumno
+            </p>
+            {student.portalEmail ? (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+                    Usuario
+                  </p>
+                  <p className="mt-2 text-base text-[var(--foreground)]">
+                    {student.portalEmail}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+                    Clave inicial
+                  </p>
+                  <p className="mt-2 text-base text-[var(--foreground)]">
+                    {student.portalInitialPassword ?? "Pendiente"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-3 text-base muted-copy">
+                Todavia no se genero el acceso automatico.
+              </p>
+            )}
+          </article>
         </SectionCard>
 
         <SectionCard

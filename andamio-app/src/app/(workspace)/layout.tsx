@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { loadAppData } from "@/lib/app-data";
+import { resolveUserRole } from "@/lib/auth-role";
 import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatIsoDate } from "@/lib/utils";
@@ -20,6 +21,12 @@ export default async function WorkspaceLayout({
 
     if (!user) {
       redirect("/login");
+    }
+
+    const role = await resolveUserRole(supabase, user);
+
+    if (role === "alumno") {
+      redirect("/portal/informes");
     }
   }
 

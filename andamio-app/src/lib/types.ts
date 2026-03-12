@@ -70,6 +70,9 @@ export interface Student {
   pendingTasks: number;
   notes: string;
   assignedProfessionalIds: string[];
+  portalEmail?: string;
+  portalInitialPassword?: string;
+  portalProfileId?: string;
 }
 
 export interface Evaluation {

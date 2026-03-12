@@ -93,6 +93,14 @@ create table if not exists public.student_professionals (
   unique (student_id, professional_id)
 );
 
+create table if not exists public.student_portal_accounts (
+  student_id uuid primary key references public.students(id) on delete cascade,
+  profile_id uuid not null unique references public.profiles(id) on delete cascade,
+  email text not null unique,
+  initial_password text not null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.evaluations (
   id uuid primary key default gen_random_uuid(),
   student_id uuid not null references public.students(id) on delete cascade,
@@ -169,3 +177,4 @@ create table if not exists public.submissions (
 
 comment on table public.files is 'Metadata de archivos guardados en Supabase Storage.';
 comment on table public.schedule_events is 'Agenda base del MVP para sesiones y reuniones.';
+comment on table public.student_portal_accounts is 'Credenciales iniciales del portal alumno para el MVP.';

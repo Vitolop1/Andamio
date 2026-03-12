@@ -3,6 +3,7 @@
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { getHomePathForRole, resolveUserRole } from "@/lib/auth-role";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface LoginFormProps {
@@ -57,7 +58,7 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
     startTransition(async () => {
       try {
         const supabase = createSupabaseBrowserClient();
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
@@ -68,7 +69,11 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
           return;
         }
 
-        router.push("/dashboard");
+        const role = data.user
+          ? await resolveUserRole(supabase, data.user)
+          : null;
+
+        router.push(getHomePathForRole(role));
         router.refresh();
       } catch (error) {
         setErrorMessage(

@@ -77,6 +77,13 @@ interface StudentProfessionalRow {
   professional_id: string;
 }
 
+interface StudentPortalAccountRow {
+  student_id: string;
+  profile_id: string;
+  email: string;
+  initial_password: string;
+}
+
 interface EvaluationRow {
   id: string;
   student_id: string;
@@ -241,6 +248,27 @@ async function fetchFilesWithCompatibility(
   };
 }
 
+async function fetchStudentPortalAccountsWithCompatibility(
+  supabase: ReturnType<typeof createSupabaseAdminClient> | Awaited<ReturnType<typeof createSupabaseServerClient>>,
+) {
+  const result = await supabase
+    .from("student_portal_accounts")
+    .select("student_id, profile_id, email, initial_password");
+
+  if (!result.error) {
+    return result;
+  }
+
+  if (!result.error.message.toLowerCase().includes("student_portal_accounts")) {
+    return result;
+  }
+
+  return {
+    data: [],
+    error: null,
+  };
+}
+
 export const loadAppData = cache(async (): Promise<AppDataBundle> => {
   if (!hasSupabaseEnv) {
     return getMockBundle();
@@ -261,6 +289,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       coursesResult,
       studentsResult,
       studentProfessionalsResult,
+      studentPortalAccountsResult,
       evaluationsResult,
       filesResult,
       scheduleEventsResult,
@@ -287,6 +316,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       supabase
         .from("student_professionals")
         .select("student_id, professional_id"),
+      fetchStudentPortalAccountsWithCompatibility(supabase),
       supabase
         .from("evaluations")
         .select("id, student_id, title, evaluation_type, summary, evaluated_at")
@@ -309,6 +339,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       coursesResult,
       studentsResult,
       studentProfessionalsResult,
+      studentPortalAccountsResult,
       evaluationsResult,
       filesResult,
       scheduleEventsResult,
@@ -327,12 +358,17 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
     const studentRows = (studentsResult.data ?? []) as StudentRow[];
     const studentProfessionalRows =
       (studentProfessionalsResult.data ?? []) as StudentProfessionalRow[];
+    const studentPortalAccountRows =
+      (studentPortalAccountsResult.data ?? []) as StudentPortalAccountRow[];
     const evaluationRows = (evaluationsResult.data ?? []) as EvaluationRow[];
     const fileRows = (filesResult.data ?? []) as FileRow[];
     const scheduleRows = (scheduleEventsResult.data ?? []) as ScheduleEventRow[];
     const assignmentRows = (assignmentsResult.data ?? []) as AssignmentRow[];
 
     const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
+    const studentPortalAccountMap = new Map(
+      studentPortalAccountRows.map((account) => [account.student_id, account]),
+    );
 
     const sessionProfile =
       (user && profiles.find((profile) => profile.id === user.id)) ||
@@ -484,6 +520,10 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
         notes: student.notes ?? "Sin observaciones cargadas.",
         assignedProfessionalIds:
           professionalIdsByStudent.get(student.id) ?? [],
+        portalEmail: studentPortalAccountMap.get(student.id)?.email,
+        portalInitialPassword:
+          studentPortalAccountMap.get(student.id)?.initial_password,
+        portalProfileId: studentPortalAccountMap.get(student.id)?.profile_id,
       };
     });
 

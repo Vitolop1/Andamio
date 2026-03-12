@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "bootstrap:auth": "node scripts/bootstrap-auth-users.mjs",
-    "sync:accounts": "node scripts/sync-team-accounts.mjs"
+    "sync:accounts": "node scripts/sync-team-accounts.mjs",
+    "sync:student-accounts": "node scripts/sync-student-accounts.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.9.0",

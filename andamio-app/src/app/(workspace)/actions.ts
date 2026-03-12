@@ -9,7 +9,13 @@ import {
   isDemoBypassEnabled,
 } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  buildStudentPortalEmail,
+  buildStudentPortalFullName,
+  buildStudentPortalPassword,
+} from "@/lib/student-portal";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { addDays, formatIsoDate } from "@/lib/utils";
 import type {
   EventStatus,
   FileKind,
@@ -86,6 +92,65 @@ function toTimeMinutes(value: string) {
 
 function normalizeTimeForDatabase(value: string) {
   return value.length === 5 ? `${value}:00` : value;
+}
+
+function parseIsoDate(value: string) {
+  const parsed = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error("La fecha del horario no es valida.");
+  }
+
+  return parsed;
+}
+
+function addMonths(value: Date, amount: number) {
+  const next = new Date(value);
+  next.setMonth(next.getMonth() + amount);
+  return next;
+}
+
+function addYears(value: Date, amount: number) {
+  const next = new Date(value);
+  next.setFullYear(next.getFullYear() + amount);
+  return next;
+}
+
+function buildRecurringDates(
+  startDateIso: string,
+  repeatWindow: string,
+  repeatDays: string[],
+) {
+  if (repeatWindow === "none") {
+    return [startDateIso];
+  }
+
+  const startDate = parseIsoDate(startDateIso);
+  const days = repeatDays.length
+    ? repeatDays.map((value) => Number(value))
+    : [startDate.getDay()];
+
+  const daySet = new Set(days);
+  const endDate =
+    repeatWindow === "week"
+      ? addDays(startDate, 6)
+      : repeatWindow === "month"
+        ? addMonths(startDate, 1)
+        : addYears(startDate, 1);
+
+  const dates: string[] = [];
+
+  for (
+    let cursor = new Date(startDate);
+    cursor <= endDate;
+    cursor = addDays(cursor, 1)
+  ) {
+    if (daySet.has(cursor.getDay())) {
+      dates.push(formatIsoDate(cursor));
+    }
+  }
+
+  return dates.length ? Array.from(new Set(dates)) : [startDateIso];
 }
 
 function buildScheduleRedirectPath(options: {
@@ -212,6 +277,120 @@ async function resolveActorProfile() {
   return { supabase, actor: insertedProfile };
 }
 
+async function ensureStudentPortalAccount(options: {
+  studentId: string;
+  firstName: string;
+  lastName: string;
+}) {
+  if (!hasSupabaseServiceRole) {
+    return null;
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  const portalEmail = buildStudentPortalEmail(
+    options.firstName,
+    options.lastName,
+    options.studentId,
+  );
+  const initialPassword = buildStudentPortalPassword(options.firstName);
+  const fullName = buildStudentPortalFullName(options.firstName, options.lastName);
+
+  const { data: existingAccount } = await adminClient
+    .from("student_portal_accounts")
+    .select("profile_id")
+    .eq("student_id", options.studentId)
+    .maybeSingle<{ profile_id: string }>();
+
+  if (existingAccount?.profile_id) {
+    return {
+      email: portalEmail,
+      initialPassword,
+      profileId: existingAccount.profile_id,
+    };
+  }
+
+  const { data: authUsersData, error: authUsersError } =
+    await adminClient.auth.admin.listUsers();
+
+  if (authUsersError) {
+    throw authUsersError;
+  }
+
+  const existingUser = authUsersData.users.find((user) => user.email === portalEmail);
+
+  let profileId = existingUser?.id;
+
+  if (existingUser) {
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(
+      existingUser.id,
+      {
+        email: portalEmail,
+        password: initialPassword,
+        email_confirm: true,
+        user_metadata: {
+          full_name: fullName,
+          role: "alumno",
+        },
+      },
+    );
+
+    if (updateError) {
+      throw updateError;
+    }
+  } else {
+    const { data: createdUser, error: createError } =
+      await adminClient.auth.admin.createUser({
+        email: portalEmail,
+        password: initialPassword,
+        email_confirm: true,
+        user_metadata: {
+          full_name: fullName,
+          role: "alumno",
+        },
+      });
+
+    if (createError || !createdUser.user) {
+      throw createError ?? new Error("No se pudo crear el acceso del alumno.");
+    }
+
+    profileId = createdUser.user.id;
+  }
+
+  if (!profileId) {
+    throw new Error("No se pudo resolver el perfil del alumno.");
+  }
+
+  const { error: profileError } = await adminClient.from("profiles").upsert({
+    id: profileId,
+    full_name: fullName,
+    email: portalEmail,
+    role: "alumno",
+  });
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  const { error: accountError } = await adminClient
+    .from("student_portal_accounts")
+    .upsert({
+      student_id: options.studentId,
+      profile_id: profileId,
+      email: portalEmail,
+      initial_password: initialPassword,
+    });
+
+  if (accountError) {
+    throw accountError;
+  }
+
+  return {
+    email: portalEmail,
+    initialPassword,
+    profileId,
+  };
+}
+
 export async function createInstitutionAction(formData: FormData) {
   const { supabase, actor } = await resolveActorProfile();
 
@@ -244,14 +423,16 @@ export async function createStudentAction(formData: FormData) {
     optionalString(formData, "professional_id") ?? actor.id;
   const status = (optionalString(formData, "status") ??
     "nuevo-ingreso") as StudentStatus;
+  const firstName = requiredString(formData, "first_name");
+  const lastName = requiredString(formData, "last_name");
 
   const { data: student, error: studentError } = await supabase
     .from("students")
     .insert({
       institution_id: institutionId,
       course_id: courseId,
-      first_name: requiredString(formData, "first_name"),
-      last_name: requiredString(formData, "last_name"),
+      first_name: firstName,
+      last_name: lastName,
       birth_date: optionalString(formData, "birth_date"),
       family_contact: optionalString(formData, "family_contact"),
       support_focus: optionalString(formData, "support_focus"),
@@ -276,6 +457,12 @@ export async function createStudentAction(formData: FormData) {
   if (relationError) {
     throw relationError;
   }
+
+  await ensureStudentPortalAccount({
+    studentId: student.id,
+    firstName,
+    lastName,
+  });
 
   revalidatePath("/");
   revalidatePath("/dashboard");
@@ -501,6 +688,8 @@ export async function upsertScheduleEventAction(formData: FormData) {
   const title = optionalString(formData, "title");
   const location = optionalString(formData, "location") ?? "Andamio";
   const status = (optionalString(formData, "status") ?? "confirmada") as EventStatus;
+  const repeatWindow = optionalString(formData, "repeat_window") ?? "none";
+  const repeatDays = multipleStrings(formData, "repeat_days");
 
   if (toTimeMinutes(endTime) <= toTimeMinutes(startTime)) {
     throw new Error("La hora de fin tiene que ser posterior a la de inicio.");
@@ -562,22 +751,24 @@ export async function upsertScheduleEventAction(formData: FormData) {
   }
 
   const studentIds = multipleStrings(formData, "student_ids");
+  const eventDates = buildRecurringDates(date, repeatWindow, repeatDays);
 
   if (!studentIds.length && !title) {
     throw new Error("Si no elegis alumnos, escribi un titulo para el bloque.");
   }
 
   if (!studentIds.length) {
-    const { error } = await supabase.from("schedule_events").insert({
+    const records = eventDates.map((eventDate) => ({
       professional_id: professionalId,
       student_id: null,
       title,
-      event_date: date,
+      event_date: eventDate,
       start_time: normalizeTimeForDatabase(startTime),
       end_time: normalizeTimeForDatabase(endTime),
       location,
       status,
-    });
+    }));
+    const { error } = await supabase.from("schedule_events").insert(records);
 
     if (error) {
       throw error;
@@ -604,17 +795,19 @@ export async function upsertScheduleEventAction(formData: FormData) {
     ]),
   );
 
-  const records = studentIds.map((studentId) => ({
-    id: randomUUID(),
-    professional_id: professionalId,
-    student_id: studentId,
-    title: title ?? `Sesion individual - ${studentMap.get(studentId) ?? "Alumno"}`,
-    event_date: date,
-    start_time: normalizeTimeForDatabase(startTime),
-    end_time: normalizeTimeForDatabase(endTime),
-    location,
-    status,
-  }));
+  const records = studentIds.flatMap((studentId) =>
+    eventDates.map((eventDate) => ({
+      id: randomUUID(),
+      professional_id: professionalId,
+      student_id: studentId,
+      title: title ?? `Sesion individual - ${studentMap.get(studentId) ?? "Alumno"}`,
+      event_date: eventDate,
+      start_time: normalizeTimeForDatabase(startTime),
+      end_time: normalizeTimeForDatabase(endTime),
+      location,
+      status,
+    })),
+  );
 
   const { error } = await supabase.from("schedule_events").insert(records);
 

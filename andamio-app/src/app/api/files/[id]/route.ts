@@ -16,6 +16,10 @@ interface FileRow {
   uploaded_by: string | null;
   storage_path: string;
   title: string;
+  institution_id: string | null;
+  course_id: string | null;
+  student_id: string | null;
+  scope: "Alumno" | "Curso" | "Institucion" | null;
   visibility: "Equipo" | "Privado" | null;
 }
 
@@ -64,7 +68,7 @@ export async function GET(
 
   const { data: file, error: fileError } = await adminClient
     .from("files")
-    .select("id, uploaded_by, storage_path, title, visibility")
+    .select("id, uploaded_by, storage_path, title, institution_id, course_id, student_id, scope, visibility")
     .eq("id", id)
     .maybeSingle<FileRow>();
 
@@ -76,11 +80,35 @@ export async function GET(
     return new Response("No encontramos ese archivo.", { status: 404 });
   }
 
-  const canRead =
+  let canRead =
     profile.role === "admin" ||
-    (file.visibility ?? "Equipo") === "Equipo" ||
     file.uploaded_by === profile.id ||
     file.uploaded_by === user.id;
+
+  if (!canRead && profile.role === "alumno") {
+    const { data: portalAccount } = await adminClient
+      .from("student_portal_accounts")
+      .select("student_id")
+      .eq("profile_id", profile.id)
+      .maybeSingle<{ student_id: string }>();
+
+    if (portalAccount?.student_id) {
+      const { data: studentRow } = await adminClient
+        .from("students")
+        .select("institution_id, course_id")
+        .eq("id", portalAccount.student_id)
+        .maybeSingle<{ institution_id: string; course_id: string | null }>();
+
+      canRead =
+        (file.visibility ?? "Equipo") === "Equipo" &&
+        (file.student_id === portalAccount.student_id ||
+          (!!studentRow?.course_id && file.course_id === studentRow.course_id) ||
+          (file.scope === "Institucion" &&
+            file.institution_id === studentRow?.institution_id));
+    }
+  } else if (!canRead) {
+    canRead = (file.visibility ?? "Equipo") === "Equipo";
+  }
 
   if (!canRead) {
     return new Response("No tenes permisos para abrir este archivo.", {

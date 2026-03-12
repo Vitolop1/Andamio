@@ -43,7 +43,6 @@ export function AppShell({
             src="/andamiologo.png"
             width={250}
           />
-          <p className="mt-3 text-sm text-[var(--muted)]">Volver al inicio</p>
         </Link>
 
         <div className="rounded-[24px] border border-[rgba(76,63,97,0.08)] bg-white/82 px-4 py-4">
@@ -137,11 +136,7 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-col gap-6">
         <header className="surface-card grid gap-4 px-5 py-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-          <div className="flex items-center justify-center lg:justify-start">
-            <div className="rounded-full bg-[rgba(188,203,79,0.18)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]">
-              Panel simple y rapido
-            </div>
-          </div>
+          <div />
 
           <div className="flex justify-center">
             <Link className="rounded-[22px] bg-white/84 px-5 py-3" href="/">

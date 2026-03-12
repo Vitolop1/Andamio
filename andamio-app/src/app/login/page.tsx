@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
+import { getHomePathForRole, resolveUserRole } from "@/lib/auth-role";
 import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -18,7 +19,8 @@ export default async function LoginPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      redirect("/dashboard");
+      const role = await resolveUserRole(supabase, user);
+      redirect(getHomePathForRole(role));
     }
   }
 

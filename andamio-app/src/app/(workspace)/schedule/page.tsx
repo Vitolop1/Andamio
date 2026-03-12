@@ -20,6 +20,16 @@ export const metadata = {
   title: "Agenda",
 };
 
+const repeatDayOptions = [
+  { label: "Lun", value: "1" },
+  { label: "Mar", value: "2" },
+  { label: "Mie", value: "3" },
+  { label: "Jue", value: "4" },
+  { label: "Vie", value: "5" },
+  { label: "Sab", value: "6" },
+  { label: "Dom", value: "0" },
+];
+
 interface SchedulePageProps {
   searchParams?: Promise<{
     view?: string;
@@ -153,6 +163,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
     (view === "month" ? formatIsoDate(safeReferenceDate) : weekStartIso);
   const selectedTime = selectedEvent?.startTime ?? params?.time ?? "15:00";
   const selectedEndTime = selectedEvent?.endTime ?? addMinutesToClock(selectedTime, 45);
+  const defaultRepeatDay = new Date(`${selectedDate}T00:00:00`).getDay().toString();
 
   const weekEvents = visibleEvents
     .filter((event) => {
@@ -248,7 +259,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
       >
         <form
           action={upsertScheduleEventAction}
-          className="grid gap-5 xl:grid-cols-4"
+          className="grid scroll-mt-28 gap-5 xl:grid-cols-4"
           id="calendar-editor"
         >
           <input name="event_id" type="hidden" value={selectedEvent?.id ?? ""} />
@@ -326,6 +337,41 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
               type="text"
             />
           </label>
+
+          {!selectedEvent ? (
+            <>
+              <label className="block xl:col-span-2">
+                <span className="form-label">Repetir</span>
+                <select className="input-field" defaultValue="none" name="repeat_window">
+                  <option value="none">Solo este dia</option>
+                  <option value="week">Toda la semana</option>
+                  <option value="month">Todo el mes</option>
+                  <option value="year">Todo el ano</option>
+                </select>
+              </label>
+
+              <div className="xl:col-span-2">
+                <p className="form-label">Dias</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {repeatDayOptions.map((option) => (
+                    <label
+                      className="rounded-full border border-[rgba(76,63,97,0.1)] bg-white/82 px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                      key={option.value}
+                    >
+                      <input
+                        className="mr-2 accent-[var(--primary)]"
+                        defaultChecked={option.value === defaultRepeatDay}
+                        name="repeat_days"
+                        type="checkbox"
+                        value={option.value}
+                      />
+                      {option.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : null}
 
           {selectedEvent ? (
             <label className="block xl:col-span-4">
