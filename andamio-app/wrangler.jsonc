@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "andamio-web",
+  "compatibility_date": "2026-03-10",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "andamio-web"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "andamio-web-opennext-cache"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://uxajtxbmdphvrknvezkb.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_kavZmtRX47X0bEuKJALlag_V8MykTce",
+    "NEXT_PUBLIC_ENABLE_DEMO_BYPASS": "false",
+    "APP_STORAGE_LIMIT_BYTES": "10000000000"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
