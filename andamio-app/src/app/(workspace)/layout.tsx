@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/app-shell";
 import { loadAppData } from "@/lib/app-data";
 import { resolveUserRole } from "@/lib/auth-role";
-import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env";
+import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatIsoDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -13,7 +13,7 @@ export default async function WorkspaceLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  if (hasSupabaseEnv && !isDemoBypassEnabled) {
+  if (hasSupabaseEnv() && !isDemoBypassEnabled()) {
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },

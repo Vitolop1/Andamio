@@ -1,13 +1,15 @@
 import { createProfessionalAction } from "@/app/(workspace)/actions";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
-import { hasSupabaseServiceRole } from "@/lib/env";
+import { hasSupabaseServiceRole } from "@/lib/env.server";
 
 export const metadata = {
   title: "Nuevo profesional",
 };
 
 export default function NewProfessionalPage() {
+  const canCreateProfessionals = hasSupabaseServiceRole();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -19,7 +21,7 @@ export default function NewProfessionalPage() {
         eyebrow="Formulario"
         title="Nuevo acceso"
       >
-        {!hasSupabaseServiceRole ? (
+        {!canCreateProfessionals ? (
           <div className="rounded-[26px] bg-[rgba(227,170,157,0.22)] p-5 text-base text-[var(--warm-strong)]">
             Falta `SUPABASE_SERVICE_ROLE_KEY` en `.env.local`. Sin esa key no se
             pueden crear usuarios nuevos desde la web.
@@ -73,7 +75,7 @@ export default function NewProfessionalPage() {
           <div className="lg:col-span-2">
             <button
               className="primary-button text-base disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!hasSupabaseServiceRole}
+              disabled={!canCreateProfessionals}
               type="submit"
             >
               Guardar profesional

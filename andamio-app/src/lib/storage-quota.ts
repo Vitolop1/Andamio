@@ -4,7 +4,7 @@ import {
   hasSupabaseEnv,
   hasSupabaseServiceRole,
   isDemoBypassEnabled,
-} from "@/lib/env";
+} from "@/lib/env.server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -68,11 +68,11 @@ export function parseFileSizeLabel(value: string | null | undefined) {
 }
 
 async function fetchFileSizeRows() {
-  if (!hasSupabaseEnv) {
+  if (!hasSupabaseEnv()) {
     return [] as FileSizeRow[];
   }
 
-  const useAdminClient = isDemoBypassEnabled && hasSupabaseServiceRole;
+  const useAdminClient = isDemoBypassEnabled() && hasSupabaseServiceRole();
   const supabase = useAdminClient
     ? createSupabaseAdminClient()
     : await createSupabaseServerClient();

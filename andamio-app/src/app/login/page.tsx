@@ -2,7 +2,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
 import { getHomePathForRole, resolveUserRole } from "@/lib/auth-role";
-import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env";
+import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -12,7 +12,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
-  if (hasSupabaseEnv && !isDemoBypassEnabled) {
+  if (hasSupabaseEnv() && !isDemoBypassEnabled()) {
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -42,7 +42,7 @@ export default async function LoginPage() {
           </h1>
         </div>
 
-        <LoginForm authEnabled={hasSupabaseEnv && !isDemoBypassEnabled} />
+        <LoginForm authEnabled={hasSupabaseEnv() && !isDemoBypassEnabled()} />
       </section>
     </main>
   );

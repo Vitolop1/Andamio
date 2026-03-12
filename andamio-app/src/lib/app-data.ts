@@ -13,7 +13,7 @@ import {
   hasSupabaseEnv,
   hasSupabaseServiceRole,
   isDemoBypassEnabled,
-} from "@/lib/env";
+} from "@/lib/env.server";
 import { loadSignedFileUrlMap } from "@/lib/file-download";
 import { inferGradeLabel } from "@/lib/grades";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -271,12 +271,12 @@ async function fetchStudentPortalAccountsWithCompatibility(
 }
 
 export const loadAppData = cache(async (): Promise<AppDataBundle> => {
-  if (!hasSupabaseEnv) {
+  if (!hasSupabaseEnv()) {
     return getMockBundle();
   }
 
   try {
-    const useAdminClient = isDemoBypassEnabled && hasSupabaseServiceRole;
+    const useAdminClient = isDemoBypassEnabled() && hasSupabaseServiceRole();
     const supabase = useAdminClient
       ? createSupabaseAdminClient()
       : await createSupabaseServerClient();

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasSupabaseServiceRole } from "@/lib/env";
+import { hasSupabaseServiceRole } from "@/lib/env.server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -27,7 +27,7 @@ export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!hasSupabaseServiceRole) {
+  if (!hasSupabaseServiceRole()) {
     return new Response("Falta SUPABASE_SERVICE_ROLE_KEY para abrir archivos.", {
       status: 500,
     });

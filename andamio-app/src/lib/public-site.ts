@@ -1,26 +1,23 @@
 export const publicTeam = [
   {
-    name: "Lic. Emilia Maidana",
-    role: "Coordinacion y acompanamiento",
-    bio: "Acompana trayectorias de aprendizaje, organiza el seguimiento clinico y sostiene la mirada integral del equipo.",
+    name: "Prof. Rosario Maidana",
+    role: "Profesora",
   },
   {
-    name: "Prof. Rosario Maidana",
-    role: "Intervencion pedagogica",
-    bio: "Trabaja con estrategias personalizadas, propuestas practicas y articulacion con familias y escuelas.",
+    name: "Lic. Emilia Maidana",
+    role: "Profesora",
   },
   {
     name: "Prof. Agustina Esquiu",
-    role: "Apoyo y planificacion",
-    bio: "Ordena materiales, propuestas de trabajo y recursos para que cada nino tenga continuidad dentro y fuera del consultorio.",
+    role: "Profesora",
   },
 ];
 
 export const publicServices = [
-  "Acompanamiento en aprendizaje y seguimiento individual.",
-  "Articulacion con colegios, familias y profesionales.",
-  "Materiales, tareas e informes en una sola plataforma.",
-  "Agenda de sesiones, encuentros y organizacion diaria del equipo.",
+  "Atencion y acompanamiento para chicos.",
+  "Apoyo en aprendizaje y seguimiento profesional.",
+  "Trabajo con archivos, informes y tareas en un solo lugar.",
+  "Organizacion de horarios, materiales y seguimiento.",
 ];
 
 export const publicHighlights = [
@@ -43,7 +40,13 @@ export const publicLocations = [
   },
 ];
 
-export const publicInstagram = {
-  handle: "@andamio.salta",
-  href: "https://instagram.com/",
-};
+export const publicNetworks = [
+  {
+    name: "Instagram",
+    href: "#",
+  },
+  {
+    name: "TikTok",
+    href: "#",
+  },
+];

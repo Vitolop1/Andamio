@@ -8,7 +8,7 @@ import {
   getAppStorageLimitBytes,
   hasSupabaseServiceRole,
   isDemoBypassEnabled,
-} from "@/lib/env";
+} from "@/lib/env.server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { formatStorageBytes, parseFileSizeLabel } from "@/lib/storage-quota";
 import {
@@ -283,7 +283,7 @@ function isRedirectThrowable(error: unknown) {
 }
 
 async function ensureStorageBucket() {
-  if (!hasSupabaseServiceRole) {
+  if (!hasSupabaseServiceRole()) {
     return;
   }
 
@@ -312,7 +312,7 @@ async function ensureStorageBucket() {
 }
 
 async function resolveActorProfile() {
-  if (isDemoBypassEnabled && hasSupabaseServiceRole) {
+  if (isDemoBypassEnabled() && hasSupabaseServiceRole()) {
     const supabase = createSupabaseAdminClient();
     const { data: actor, error } = await supabase
       .from("profiles")
@@ -388,7 +388,7 @@ async function ensureStudentPortalAccount(options: {
   firstName: string;
   lastName: string;
 }) {
-  if (!hasSupabaseServiceRole) {
+  if (!hasSupabaseServiceRole()) {
     return null;
   }
 
@@ -580,7 +580,7 @@ export async function createStudentAction(formData: FormData) {
 export async function createProfessionalAction(formData: FormData) {
   await resolveActorProfile();
 
-  if (!hasSupabaseServiceRole) {
+  if (!hasSupabaseServiceRole()) {
     throw new Error(
       "Falta SUPABASE_SERVICE_ROLE_KEY para crear usuarios profesionales.",
     );
@@ -663,7 +663,7 @@ export async function createLibraryFileAction(formData: FormData) {
       resolvedScope = "Institucion";
     }
 
-    const quotaClient = hasSupabaseServiceRole
+    const quotaClient = hasSupabaseServiceRole()
       ? createSupabaseAdminClient()
       : actorContext.supabase;
     const usedBytes = await getCurrentStorageUsageBytes(quotaClient);
@@ -758,7 +758,7 @@ export async function createLibraryFileAction(formData: FormData) {
       storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
     }
 
-    const storageClient = hasSupabaseServiceRole
+    const storageClient = hasSupabaseServiceRole()
       ? createSupabaseAdminClient()
       : actorContext.supabase;
     const bytes = Buffer.from(await fileInput.arrayBuffer());
@@ -778,7 +778,7 @@ export async function createLibraryFileAction(formData: FormData) {
       );
     }
 
-    const databaseClient = hasSupabaseServiceRole
+    const databaseClient = hasSupabaseServiceRole()
       ? createSupabaseAdminClient()
       : actorContext.supabase;
 

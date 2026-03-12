@@ -1,9 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-import { getSupabaseEnv, hasSupabaseEnv } from "@/lib/env";
+import { getSupabaseEnv, hasSupabaseEnv } from "@/lib/env.server";
 
 export async function updateSession(request: NextRequest) {
-  if (!hasSupabaseEnv) {
+  if (!hasSupabaseEnv()) {
     return NextResponse.next({ request });
   }
 

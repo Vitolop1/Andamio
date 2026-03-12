@@ -6,12 +6,13 @@ import {
   BookOpenText,
   Instagram,
   MapPin,
+  Music2,
   UsersRound,
 } from "lucide-react";
 import {
   publicHighlights,
-  publicInstagram,
   publicLocations,
+  publicNetworks,
   publicServices,
   publicTeam,
 } from "@/lib/public-site";
@@ -48,10 +49,10 @@ export default function Home() {
             <article className="surface-card-strong p-8 sm:p-10">
               <p className="eyebrow">Consultorio y aula virtual</p>
               <h1 className="display-font mt-4 max-w-4xl text-5xl font-semibold leading-tight text-[var(--foreground)] sm:text-6xl lg:text-7xl">
-                Andamio acompana procesos de aprendizaje con un trabajo serio, humano y ordenado.
+                Andamio es un espacio profesional para acompanar a chicos y ordenar el trabajo del equipo.
               </h1>
               <p className="mt-6 max-w-3xl text-lg leading-8 muted-copy">
-                Organizamos informes, tareas, materiales, seguimientos y horarios en un solo lugar para profesionales, familias y alumnos.
+                Reunimos informes, materiales, tareas, horarios y seguimiento en una sola plataforma privada para profesionales, familias y alumnos.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -66,7 +67,7 @@ export default function Home() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 {[
-                  "Seguimiento individual",
+                  "Acompanamiento",
                   "Biblioteca privada",
                   "Portal alumno",
                 ].map((item) => (
@@ -85,10 +86,10 @@ export default function Home() {
                 <p className="eyebrow">Banner lateral</p>
                 <div className="mt-4 rounded-[26px] border border-dashed border-[rgba(76,63,97,0.18)] bg-[rgba(188,203,79,0.12)] px-5 py-8">
                   <p className="text-lg font-semibold text-[var(--foreground)]">
-                    Espacio para talleres, novedades o convenios.
+                    Espacio para anuncios o informacion importante.
                   </p>
                   <p className="mt-3 text-base muted-copy">
-                    Placeholder listo para sumar comunicados o avisos del consultorio.
+                    Placeholder listo para sumar avisos del consultorio.
                   </p>
                 </div>
               </article>
@@ -115,7 +116,7 @@ export default function Home() {
         <div className="surface-card p-8 sm:p-10">
           <p className="eyebrow">Quienes somos</p>
           <h2 className="display-font mt-4 text-4xl font-semibold text-[var(--foreground)] sm:text-5xl">
-            Un equipo que acompana, ordena y sostiene cada trayectoria.
+            Un equipo profesional dedicado al acompanamiento y al aprendizaje.
           </h2>
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {publicTeam.map((member) => (
@@ -132,28 +133,37 @@ export default function Home() {
                 <p className="mt-2 text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
                   {member.role}
                 </p>
-                <p className="mt-4 text-base leading-7 muted-copy">{member.bio}</p>
+                <p className="mt-4 text-base leading-7 muted-copy">
+                  Equipo profesional de Andamio.
+                </p>
               </article>
             ))}
           </div>
         </div>
 
         <aside className="surface-card p-6" id="contacto">
-          <p className="eyebrow">Contacto</p>
+          <p className="eyebrow">Nuestras redes</p>
           <h3 className="display-font mt-4 text-3xl font-semibold text-[var(--foreground)]">
-            Redes y presencia
+            Instagram y TikTok
           </h3>
-          <a
-            className="secondary-button mt-6 w-full justify-start text-base"
-            href={publicInstagram.href}
-            rel="noreferrer"
-            target="_blank"
-          >
-            <Instagram className="h-4 w-4" />
-            Instagram placeholder {publicInstagram.handle}
-          </a>
+          <div className="mt-6 grid gap-3">
+            {publicNetworks.map((network) => (
+              <a
+                className="secondary-button w-full justify-start gap-4 px-5 py-4 text-base"
+                href={network.href}
+                key={network.name}
+              >
+                {network.name === "Instagram" ? (
+                  <Instagram className="h-7 w-7" />
+                ) : (
+                  <Music2 className="h-7 w-7" />
+                )}
+                {network.name}
+              </a>
+            ))}
+          </div>
           <p className="mt-5 text-base leading-7 muted-copy">
-            Cuando tengan las redes definitivas, este bloque ya esta listo para conectarlas con la web.
+            Bloque listo para conectar sus redes cuando definan los links finales.
           </p>
         </aside>
       </section>
@@ -202,7 +212,7 @@ export default function Home() {
         <p className="eyebrow">Banner inferior</p>
         <div className="mt-4 rounded-[30px] border border-dashed border-[rgba(76,63,97,0.18)] bg-[rgba(227,170,157,0.12)] px-6 py-10">
           <p className="display-font text-3xl font-semibold text-[var(--foreground)] sm:text-4xl">
-            Espacio reservado para anuncios, campañas o actividades especiales.
+            Espacio reservado para avisos, novedades o informacion destacada.
           </p>
         </div>
       </section>

@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowLeft, BookOpenText, MapPin, UsersRound } from "lucide-react";
+import { ArrowLeft, BookOpenText, Instagram, MapPin, Music2, UsersRound } from "lucide-react";
 import {
   publicLocations,
+  publicNetworks,
   publicServices,
   publicTeam,
 } from "@/lib/public-site";
@@ -42,7 +43,9 @@ export default function AboutPage() {
               <p className="mt-2 text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
                 {member.role}
               </p>
-              <p className="mt-4 text-base leading-7 muted-copy">{member.bio}</p>
+              <p className="mt-4 text-base leading-7 muted-copy">
+                Parte del equipo profesional de Andamio.
+              </p>
             </article>
           ))}
         </div>
@@ -82,6 +85,29 @@ export default function AboutPage() {
                 <MapPin className="h-4 w-4" />
                 Ver ubicacion
               </a>
+            </article>
+          ))}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {publicNetworks.map((network) => (
+            <article
+              className="rounded-[28px] border border-[rgba(76,63,97,0.08)] bg-white/84 p-6"
+              key={network.name}
+            >
+              <div className="grid h-14 w-14 place-items-center rounded-3xl bg-[rgba(146,124,183,0.12)] text-[var(--primary-strong)]">
+                {network.name === "Instagram" ? (
+                  <Instagram className="h-7 w-7" />
+                ) : (
+                  <Music2 className="h-7 w-7" />
+                )}
+              </div>
+              <p className="mt-4 text-xl font-semibold text-[var(--foreground)]">
+                {network.name}
+              </p>
+              <p className="mt-3 text-base leading-7 muted-copy">
+                Espacio listo para sumar el enlace oficial de la red.
+              </p>
             </article>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { hasSupabaseServiceRole } from "@/lib/env";
+import { hasSupabaseServiceRole } from "@/lib/env.server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const STORAGE_BUCKET = "andamio-files";
@@ -9,7 +9,7 @@ const SIGNED_URL_TTL_SECONDS = 60 * 20;
 export async function loadSignedFileUrlMap(
   files: Array<{ id: string; storagePath: string }>,
 ) {
-  if (!hasSupabaseServiceRole || !files.length) {
+  if (!hasSupabaseServiceRole() || !files.length) {
     return new Map<string, string>();
   }
 

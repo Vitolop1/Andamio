@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { StudentShell } from "@/components/student-shell";
 import { resolveUserRole } from "@/lib/auth-role";
-import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env";
+import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env.server";
 import { loadStudentPortalData } from "@/lib/student-portal-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -12,7 +12,7 @@ export default async function StudentPortalLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  if (hasSupabaseEnv && !isDemoBypassEnabled) {
+  if (hasSupabaseEnv() && !isDemoBypassEnabled()) {
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
