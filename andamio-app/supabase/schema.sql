@@ -115,6 +115,7 @@ create table if not exists public.files (
   kind public.file_kind not null,
   scope public.file_scope not null,
   visibility public.file_visibility not null default 'Equipo',
+  grade_label text,
   subject text,
   file_size_label text,
   school_year text,

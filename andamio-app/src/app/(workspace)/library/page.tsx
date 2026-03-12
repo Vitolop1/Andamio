@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { StatusBadge } from "@/components/status-badge";
 import { loadAppData } from "@/lib/app-data";
+import { NONE_FILTER_VALUE } from "@/lib/library-filters";
 import { normalizeForSearch } from "@/lib/utils";
 
 export const metadata = {
@@ -14,6 +15,7 @@ interface LibraryPageProps {
     q?: string;
     institutionId?: string;
     courseId?: string;
+    gradeLabel?: string;
     subject?: string;
     kind?: string;
     scope?: string;
@@ -37,12 +39,34 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
       ? data.students.find((item) => item.id === file.studentId)
       : null;
 
-    if (filters?.institutionId && file.institutionId !== filters.institutionId) {
-      return false;
+    if (filters?.institutionId) {
+      if (filters.institutionId === NONE_FILTER_VALUE) {
+        if (file.institutionId) {
+          return false;
+        }
+      } else if (file.institutionId !== filters.institutionId) {
+        return false;
+      }
     }
 
-    if (filters?.courseId && file.courseId !== filters.courseId) {
-      return false;
+    if (filters?.courseId) {
+      if (filters.courseId === NONE_FILTER_VALUE) {
+        if (file.courseId) {
+          return false;
+        }
+      } else if (file.courseId !== filters.courseId) {
+        return false;
+      }
+    }
+
+    if (filters?.gradeLabel) {
+      if (filters.gradeLabel === NONE_FILTER_VALUE) {
+        if (file.gradeLabel) {
+          return false;
+        }
+      } else if (file.gradeLabel !== filters.gradeLabel) {
+        return false;
+      }
     }
 
     if (filters?.subject && file.subject !== filters.subject) {
@@ -72,6 +96,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         file.kind,
         file.scope,
         file.visibility,
+        file.gradeLabel,
         file.year,
         institution?.name,
         course?.name,
@@ -97,7 +122,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
       <PageHeader
         actionHref="/upload"
         actionLabel="Subir archivo"
-        description="Busca por colegio, curso, materia, nombre, tipo o visibilidad para encontrar cualquier archivo rapido."
+        description="Busca por colegio, grado, curso puntual, materia, nombre, tipo o visibilidad para encontrar cualquier archivo rapido."
         eyebrow="Archivos privados"
         title="Biblioteca organizada"
       />
@@ -146,7 +171,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
             ) : (
               <article className="rounded-[26px] bg-[rgba(227,170,157,0.2)] p-6 text-base leading-7 text-[var(--foreground)] md:col-span-2">
                 No encontramos archivos con esos filtros. Proba cambiando el
-                colegio, la materia o el texto de busqueda.
+                colegio, el grado, la materia o el texto de busqueda.
               </article>
             )}
           </div>
@@ -183,10 +208,11 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
                         {file.subject} - {file.year} - {file.sizeLabel}
                       </p>
                       <p className="mt-3 text-base text-[var(--foreground)]">
-                        {institution?.name ?? "Sin institucion"}{" "}
+                        {institution?.name ?? "Sin colegio / general"}{" "}
                         {course ? `- ${course.name}` : ""}
                       </p>
                       <p className="mt-2 text-sm muted-copy">
+                        {file.gradeLabel ? `Grado: ${file.gradeLabel} - ` : ""}
                         {student
                           ? `Alumno: ${student.firstName} ${student.lastName}`
                           : `Alcance: ${file.scope}`}{" "}
@@ -194,14 +220,28 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                      <StatusBadge tone="neutral">{file.kind}</StatusBadge>
-                      <StatusBadge tone="success">{file.scope}</StatusBadge>
-                      <StatusBadge
-                        tone={file.visibility === "Privado" ? "warning" : "accent"}
+                    <div className="flex flex-col items-start gap-3 sm:items-end">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {file.gradeLabel ? (
+                          <StatusBadge tone="neutral">{file.gradeLabel}</StatusBadge>
+                        ) : null}
+                        <StatusBadge tone="neutral">{file.kind}</StatusBadge>
+                        <StatusBadge tone="success">{file.scope}</StatusBadge>
+                        <StatusBadge
+                          tone={file.visibility === "Privado" ? "warning" : "accent"}
+                        >
+                          {file.visibility}
+                        </StatusBadge>
+                      </div>
+
+                      <a
+                        className="secondary-button text-base"
+                        href={`/api/files/${file.id}`}
+                        rel="noreferrer"
+                        target="_blank"
                       >
-                        {file.visibility}
-                      </StatusBadge>
+                        Abrir o descargar
+                      </a>
                     </div>
                   </div>
                 </article>

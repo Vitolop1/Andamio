@@ -13,6 +13,7 @@ import {
   hasSupabaseServiceRole,
   isDemoBypassEnabled,
 } from "@/lib/env";
+import { inferGradeLabel } from "@/lib/grades";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
@@ -94,6 +95,7 @@ interface FileRow {
   kind: LibraryFile["kind"];
   scope: LibraryFile["scope"];
   visibility?: LibraryFile["visibility"] | null;
+  grade_label?: string | null;
   subject: string | null;
   file_size_label: string | null;
   school_year: string | null;
@@ -138,7 +140,7 @@ function getMockBundle(): AppDataBundle {
         id: mockProfessional.id,
         name: mockProfessional.name,
         email: "emilia@andamio.app",
-        role: "profesional",
+        role: "admin",
       },
     ],
     institutions: mockInstitutions,
@@ -182,7 +184,7 @@ async function fetchFilesWithCompatibility(
   const withVisibility = await supabase
     .from("files")
     .select(
-      "id, uploaded_by, institution_id, course_id, student_id, title, storage_path, kind, scope, visibility, subject, file_size_label, school_year, created_at",
+      "id, uploaded_by, institution_id, course_id, student_id, title, storage_path, kind, scope, visibility, grade_label, subject, file_size_label, school_year, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -190,7 +192,11 @@ async function fetchFilesWithCompatibility(
     return withVisibility;
   }
 
-  if (!withVisibility.error.message.toLowerCase().includes("visibility")) {
+  const fallbackToLegacy =
+    withVisibility.error.message.toLowerCase().includes("visibility") ||
+    withVisibility.error.message.toLowerCase().includes("grade_label");
+
+  if (!fallbackToLegacy) {
     return withVisibility;
   }
 
@@ -210,6 +216,7 @@ async function fetchFilesWithCompatibility(
     data: (fallback.data ?? []).map((file) => ({
       ...file,
       visibility: "Equipo",
+      grade_label: null,
     })),
   };
 }
@@ -313,8 +320,8 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
 
     const firstProfessional =
       sessionProfile ??
-      profiles.find((profile) => profile.role === "profesional") ??
-      profiles.find((profile) => profile.role === "admin");
+      profiles.find((profile) => profile.role === "admin") ??
+      profiles.find((profile) => profile.role === "profesional");
 
     const currentProfessional: ProfessionalProfile = firstProfessional
       ? {
@@ -405,6 +412,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
         .length,
       subjects: [],
     }));
+    const courseMap = new Map(courses.map((course) => [course.id, course]));
 
     const students: Student[] = studentRows.map((student) => {
       const nextEvent = earliestEventByStudent.get(student.id);
@@ -461,6 +469,12 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       institutionId: file.institution_id ?? undefined,
       courseId: file.course_id ?? undefined,
       studentId: file.student_id ?? undefined,
+      gradeLabel:
+        file.grade_label ??
+        inferGradeLabel(
+          file.course_id ? courseMap.get(file.course_id)?.name : undefined,
+        ) ??
+        undefined,
       subject: file.subject ?? "General",
       year:
         file.school_year ??

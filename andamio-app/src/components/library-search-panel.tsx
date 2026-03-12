@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { schoolGrades } from "@/lib/grades";
+import { NONE_FILTER_VALUE } from "@/lib/library-filters";
 import { schoolSubjects } from "@/lib/subjects";
 import type { Course, Institution } from "@/lib/types";
 
@@ -13,6 +15,7 @@ interface LibrarySearchPanelProps {
     q?: string;
     institutionId?: string;
     courseId?: string;
+    gradeLabel?: string;
     subject?: string;
     kind?: string;
     scope?: string;
@@ -30,21 +33,20 @@ export function LibrarySearchPanel({
 }: LibrarySearchPanelProps) {
   const [institutionId, setInstitutionId] = useState(values?.institutionId ?? "");
   const [courseId, setCourseId] = useState(values?.courseId ?? "");
-
-  const filteredCourses = institutionId
-    ? courses.filter((course) => course.institutionId === institutionId)
-    : courses;
+  const institutionsById = new Map(
+    institutions.map((institution) => [institution.id, institution.name]),
+  );
 
   return (
     <form action={action} className="space-y-4">
-      <div className={`grid gap-4 ${compact ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
-        <label className={compact ? "block lg:col-span-2" : "block lg:col-span-3"}>
+      <div className={`grid gap-4 ${compact ? "lg:grid-cols-2" : "lg:grid-cols-4"}`}>
+        <label className={compact ? "block lg:col-span-2" : "block lg:col-span-4"}>
           <span className="form-label">Buscar archivo</span>
           <input
             className="input-field"
             defaultValue={values?.q ?? ""}
             name="q"
-            placeholder="Ej: 5to B, Santa Maria, lectura, informe..."
+            placeholder="Ej: 1er grado, Santa Maria, lectura, informe..."
             type="text"
           />
         </label>
@@ -61,6 +63,7 @@ export function LibrarySearchPanel({
             value={institutionId}
           >
             <option value="">Todos</option>
+            <option value={NONE_FILTER_VALUE}>Sin colegio / general</option>
             {institutions.map((institution) => (
               <option key={institution.id} value={institution.id}>
                 {institution.name}
@@ -70,7 +73,7 @@ export function LibrarySearchPanel({
         </label>
 
         <label className="block">
-          <span className="form-label">Curso</span>
+          <span className="form-label">Curso puntual</span>
           <select
             className="input-field"
             name="courseId"
@@ -78,9 +81,28 @@ export function LibrarySearchPanel({
             value={courseId}
           >
             <option value="">Todos</option>
-            {filteredCourses.map((course) => (
+            <option value={NONE_FILTER_VALUE}>Sin curso puntual</option>
+            {courses.map((course) => (
               <option key={course.id} value={course.id}>
-                {course.name}
+                {course.name} -{" "}
+                {institutionsById.get(course.institutionId) ?? "Sin colegio"}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="form-label">Grado compartido</span>
+          <select
+            className="input-field"
+            defaultValue={values?.gradeLabel ?? ""}
+            name="gradeLabel"
+          >
+            <option value="">Todos</option>
+            <option value={NONE_FILTER_VALUE}>Sin grado</option>
+            {schoolGrades.map((grade) => (
+              <option key={grade} value={grade}>
+                {grade}
               </option>
             ))}
           </select>
@@ -119,7 +141,7 @@ export function LibrarySearchPanel({
           <select className="input-field" defaultValue={values?.scope ?? ""} name="scope">
             <option value="">Todos</option>
             <option value="Alumno">Alumno</option>
-            <option value="Curso">Curso</option>
+            <option value="Curso">Curso o grado</option>
             <option value="Institucion">Institucion</option>
           </select>
         </label>

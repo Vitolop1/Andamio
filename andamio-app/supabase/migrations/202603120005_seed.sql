@@ -1,8 +1,8 @@
 insert into public.profiles (id, full_name, email, role)
 values
-  ('11111111-1111-1111-1111-111111111111', 'Lic. Emilia Alvarez', 'emilia@andamio.app', 'profesional'),
-  ('11111111-1111-1111-1111-111111111112', 'Prof. Rosario Figueroa', 'rosario@andamio.app', 'profesional'),
-  ('11111111-1111-1111-1111-111111111113', 'Prof. Agustina Guzman', 'agustina@andamio.app', 'profesional'),
+  ('11111111-1111-1111-1111-111111111111', 'Lic. Emilia Maidana', 'emilia@andamio.app', 'admin'),
+  ('11111111-1111-1111-1111-111111111112', 'Prof. Rosario Maidana', 'rosario@andamio.app', 'profesional'),
+  ('11111111-1111-1111-1111-111111111113', 'Prof. Agustina Esquiu', 'agustina@andamio.app', 'profesional'),
   ('11111111-1111-1111-1111-111111111114', 'Admin Andamio', 'admin@andamio.app', 'admin')
 on conflict (id) do update
 set
@@ -12,9 +12,9 @@ set
 
 insert into public.institutions (id, name, city, province, lead_name, created_by)
 values
-  ('22222222-2222-2222-2222-222222222221', 'Consultorio Andamio', 'Salta', 'Salta', 'Lic. Emilia Alvarez', '11111111-1111-1111-1111-111111111111'),
-  ('22222222-2222-2222-2222-222222222222', 'Colegio Santo Tomas de Aquino', 'Salta', 'Salta', 'Prof. Rosario Figueroa', '11111111-1111-1111-1111-111111111114'),
-  ('22222222-2222-2222-2222-222222222223', 'Colegio Belgrano', 'Salta', 'Salta', 'Prof. Agustina Guzman', '11111111-1111-1111-1111-111111111114'),
+  ('22222222-2222-2222-2222-222222222221', 'Andamio', 'Salta', 'Salta', 'Lic. Emilia Maidana', '11111111-1111-1111-1111-111111111111'),
+  ('22222222-2222-2222-2222-222222222222', 'Colegio Santo Tomas de Aquino', 'Salta', 'Salta', 'Prof. Rosario Maidana', '11111111-1111-1111-1111-111111111114'),
+  ('22222222-2222-2222-2222-222222222223', 'Colegio Belgrano', 'Salta', 'Salta', 'Prof. Agustina Esquiu', '11111111-1111-1111-1111-111111111114'),
   ('22222222-2222-2222-2222-222222222224', 'Colegio San Pablo', 'Salta', 'Salta', 'Equipo Andamio', '11111111-1111-1111-1111-111111111114'),
   ('22222222-2222-2222-2222-222222222225', 'Colegio Santa Maria', 'Salta', 'Salta', 'Equipo Andamio', '11111111-1111-1111-1111-111111111114'),
   ('22222222-2222-2222-2222-222222222226', 'Colegio Santa Teresa de Jesus', 'Salta', 'Salta', 'Equipo Andamio', '11111111-1111-1111-1111-111111111114'),
@@ -39,8 +39,8 @@ insert into public.courses (id, institution_id, name, school_year, level, shift,
 values
   ('33333333-3333-3333-3333-333333333331', '22222222-2222-2222-2222-222222222222', '3ro A', '2026', 'Primaria', 'Manana', 'Soledad Cruz'),
   ('33333333-3333-3333-3333-333333333332', '22222222-2222-2222-2222-222222222222', '5to B', '2026', 'Primaria', 'Tarde', 'Marina Flores'),
-  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lenguaje', '2026', 'Consultorio', 'Mixto', 'Emilia Alvarez'),
-  ('33333333-3333-3333-3333-333333333334', '22222222-2222-2222-2222-222222222223', 'Apoyo secundario', '2026', 'Secundaria', 'Tarde', 'Agustina Guzman')
+  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lenguaje', '2026', 'Consultorio', 'Mixto', 'Emilia Maidana'),
+  ('33333333-3333-3333-3333-333333333334', '22222222-2222-2222-2222-222222222223', 'Apoyo secundario', '2026', 'Secundaria', 'Tarde', 'Agustina Esquiu')
 on conflict (id) do update
 set
   institution_id = excluded.institution_id,
@@ -128,11 +128,11 @@ insert into public.schedule_events (
   status
 )
 values
-  ('88888888-8888-8888-8888-888888888881', '44444444-4444-4444-4444-444444444441', '11111111-1111-1111-1111-111111111111', 'Sesion individual - Juana Rivera', '2026-03-12', '15:00:00', '15:45:00', 'Consultorio Andamio', 'confirmada'),
+  ('88888888-8888-8888-8888-888888888881', '44444444-4444-4444-4444-444444444441', '11111111-1111-1111-1111-111111111111', 'Sesion individual - Juana Rivera', '2026-03-12', '15:00:00', '15:45:00', 'Andamio', 'confirmada'),
   ('88888888-8888-8888-8888-888888888882', null, '11111111-1111-1111-1111-111111111111', 'Revision con docente 5to B', '2026-03-12', '16:15:00', '16:45:00', 'Llamada virtual', 'pendiente'),
-  ('88888888-8888-8888-8888-888888888883', '44444444-4444-4444-4444-444444444443', '11111111-1111-1111-1111-111111111111', 'Sesion grupal - Taller de lenguaje', '2026-03-14', '10:00:00', '11:00:00', 'Consultorio Andamio', 'confirmada'),
+  ('88888888-8888-8888-8888-888888888883', '44444444-4444-4444-4444-444444444443', '11111111-1111-1111-1111-111111111111', 'Sesion grupal - Taller de lenguaje', '2026-03-14', '10:00:00', '11:00:00', 'Andamio', 'confirmada'),
   ('88888888-8888-8888-8888-888888888884', '44444444-4444-4444-4444-444444444444', '11111111-1111-1111-1111-111111111111', 'Sesion individual - Santino Diaz', '2026-03-12', '18:15:00', '19:00:00', 'Colegio Belgrano', 'reprogramar'),
-  ('88888888-8888-8888-8888-888888888885', '44444444-4444-4444-4444-444444444442', '11111111-1111-1111-1111-111111111111', 'Sesion individual - Mateo Campos', '2026-03-13', '17:30:00', '18:15:00', 'Consultorio Andamio', 'confirmada')
+  ('88888888-8888-8888-8888-888888888885', '44444444-4444-4444-4444-444444444442', '11111111-1111-1111-1111-111111111111', 'Sesion individual - Mateo Campos', '2026-03-13', '17:30:00', '18:15:00', 'Andamio', 'confirmada')
 on conflict (id) do update
 set
   student_id = excluded.student_id,

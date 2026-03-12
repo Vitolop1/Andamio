@@ -215,6 +215,17 @@ export default async function StudentDetailPage({
                     month: "long",
                   })}
                 </p>
+                {file.gradeLabel ? (
+                  <p className="mt-2 text-sm muted-copy">Grado: {file.gradeLabel}</p>
+                ) : null}
+                <a
+                  className="secondary-button mt-4 inline-flex text-base"
+                  href={`/api/files/${file.id}`}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Abrir o descargar
+                </a>
               </article>
             ))}
           </div>

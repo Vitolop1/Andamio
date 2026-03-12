@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createLibraryFileAction } from "@/app/(workspace)/actions";
+import { schoolGrades } from "@/lib/grades";
 import { schoolSubjects } from "@/lib/subjects";
 import type { Course, FileScope, Institution, Student } from "@/lib/types";
 
@@ -13,6 +14,7 @@ interface FileUploadFormProps {
   defaultInstitutionId?: string;
   defaultCourseId?: string;
   defaultStudentId?: string;
+  defaultGradeLabel?: string;
 }
 
 export function FileUploadForm({
@@ -23,16 +25,18 @@ export function FileUploadForm({
   defaultInstitutionId = "",
   defaultCourseId = "",
   defaultStudentId = "",
+  defaultGradeLabel = "",
 }: FileUploadFormProps) {
   const [scope, setScope] = useState<FileScope>(defaultScope);
   const [institutionId, setInstitutionId] = useState(defaultInstitutionId);
   const [courseId, setCourseId] = useState(defaultCourseId);
   const [studentId, setStudentId] = useState(defaultStudentId);
+  const [gradeLabel, setGradeLabel] = useState(defaultGradeLabel);
   const [fileName, setFileName] = useState("");
+  const institutionsById = new Map(
+    institutions.map((institution) => [institution.id, institution.name]),
+  );
 
-  const filteredCourses = institutionId
-    ? courses.filter((course) => course.institutionId === institutionId)
-    : courses;
   const filteredStudents = courseId
     ? students.filter((student) => student.courseId === courseId)
     : institutionId
@@ -69,8 +73,8 @@ export function FileUploadForm({
           </div>
         ) : (
           <div className="rounded-[24px] bg-[rgba(146,124,183,0.12)] px-5 py-4 text-base text-[var(--foreground)] lg:col-span-2">
-            Elegi primero el archivo y despues completa a quien o a que curso
-            pertenece.
+            Elegi primero el archivo y despues completa si va a un alumno, a un
+            grado, a un colegio o si queda como material general.
           </div>
         )}
       </div>
@@ -83,7 +87,7 @@ export function FileUploadForm({
               <input
                 className="input-field"
                 name="title"
-                placeholder="Ej: rutina de lectura 3ro A"
+                placeholder="Ej: cuadernillo de lectura 1er grado"
                 required
                 type="text"
               />
@@ -128,7 +132,7 @@ export function FileUploadForm({
                 }}
                 value={scope}
               >
-                <option value="Curso">Curso o grado completo</option>
+                <option value="Curso">Curso o grado compartido</option>
                 <option value="Alumno">Alumno puntual</option>
                 <option value="Institucion">Todo el colegio / institucion</option>
               </select>
@@ -141,13 +145,11 @@ export function FileUploadForm({
                 name="institution_id"
                 onChange={(event) => {
                   setInstitutionId(event.target.value);
-                  setCourseId("");
                   setStudentId("");
                 }}
-                required={scope !== "Alumno"}
                 value={institutionId}
               >
-                <option value="">Seleccionar</option>
+                <option value="">Sin colegio / general</option>
                 {institutions.map((institution) => (
                   <option key={institution.id} value={institution.id}>
                     {institution.name}
@@ -156,9 +158,26 @@ export function FileUploadForm({
               </select>
             </label>
 
+            <label className="block">
+              <span className="form-label">Grado compartido</span>
+              <select
+                className="input-field"
+                name="grade_label"
+                onChange={(event) => setGradeLabel(event.target.value)}
+                value={gradeLabel}
+              >
+                <option value="">Sin grado</option>
+                {schoolGrades.map((grade) => (
+                  <option key={grade} value={grade}>
+                    {grade}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             {scope !== "Institucion" ? (
               <label className="block">
-                <span className="form-label">Curso</span>
+                <span className="form-label">Curso puntual</span>
                 <select
                   className="input-field"
                   name="course_id"
@@ -166,13 +185,13 @@ export function FileUploadForm({
                     setCourseId(event.target.value);
                     setStudentId("");
                   }}
-                  required={scope === "Curso"}
                   value={courseId}
                 >
-                  <option value="">Seleccionar</option>
-                  {filteredCourses.map((course) => (
+                  <option value="">Sin curso puntual</option>
+                  {courses.map((course) => (
                     <option key={course.id} value={course.id}>
-                      {course.name}
+                      {course.name} -{" "}
+                      {institutionsById.get(course.institutionId) ?? "Sin colegio"}
                     </option>
                   ))}
                 </select>
@@ -223,10 +242,10 @@ export function FileUploadForm({
 
           <div className="rounded-[26px] bg-[rgba(227,170,157,0.18)] p-5 text-base leading-7 text-[var(--foreground)]">
             {scope === "Curso"
-              ? "Si elegis un curso, este material queda etiquetado para todo ese grado o grupo."
+              ? "Podes dejar un curso puntual o solo marcar un grado compartido. Si no elegis colegio, el archivo queda como material general para ese grado."
               : scope === "Alumno"
-                ? "Si elegis un alumno, el archivo queda directamente en su ficha."
-                : "Si elegis institucion, el archivo queda disponible como material general del colegio o espacio."}
+                ? "Si elegis un alumno, el archivo queda directamente en su ficha y toma el colegio y curso desde ese alumno."
+                : "Si elegis institucion, el archivo queda para ese colegio. Si lo dejas sin colegio, queda como material general de Andamio."}
           </div>
 
           <button className="primary-button text-base" type="submit">

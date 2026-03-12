@@ -1,0 +1,103 @@
+import { NextResponse } from "next/server";
+import { hasSupabaseServiceRole } from "@/lib/env";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const STORAGE_BUCKET = "andamio-files";
+
+interface ProfileRow {
+  id: string;
+  email: string;
+  role: "admin" | "profesional" | "alumno";
+}
+
+interface FileRow {
+  id: string;
+  uploaded_by: string | null;
+  storage_path: string;
+  title: string;
+  visibility: "Equipo" | "Privado" | null;
+}
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  if (!hasSupabaseServiceRole) {
+    return new Response("Falta SUPABASE_SERVICE_ROLE_KEY para abrir archivos.", {
+      status: 500,
+    });
+  }
+
+  const { id } = await context.params;
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user || !user.email) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  const { data: profileById } = await adminClient
+    .from("profiles")
+    .select("id, email, role")
+    .eq("id", user.id)
+    .maybeSingle<ProfileRow>();
+
+  const { data: profileByEmail } = profileById
+    ? { data: null }
+    : await adminClient
+        .from("profiles")
+        .select("id, email, role")
+        .eq("email", user.email)
+        .maybeSingle<ProfileRow>();
+
+  const profile = profileById ?? profileByEmail;
+
+  if (!profile) {
+    return new Response("No encontramos un perfil con acceso para este usuario.", {
+      status: 403,
+    });
+  }
+
+  const { data: file, error: fileError } = await adminClient
+    .from("files")
+    .select("id, uploaded_by, storage_path, title, visibility")
+    .eq("id", id)
+    .maybeSingle<FileRow>();
+
+  if (fileError) {
+    return new Response("No se pudo consultar el archivo.", { status: 500 });
+  }
+
+  if (!file) {
+    return new Response("No encontramos ese archivo.", { status: 404 });
+  }
+
+  const canRead =
+    profile.role === "admin" ||
+    (file.visibility ?? "Equipo") === "Equipo" ||
+    file.uploaded_by === profile.id ||
+    file.uploaded_by === user.id;
+
+  if (!canRead) {
+    return new Response("No tenes permisos para abrir este archivo.", {
+      status: 403,
+    });
+  }
+
+  const { data: signedUrlData, error: signedUrlError } = await adminClient.storage
+    .from(STORAGE_BUCKET)
+    .createSignedUrl(file.storage_path, 60 * 10);
+
+  if (signedUrlError || !signedUrlData?.signedUrl) {
+    return new Response(
+      "El archivo esta registrado, pero no encontramos el contenido real en Storage.",
+      { status: 404 },
+    );
+  }
+
+  return NextResponse.redirect(signedUrlData.signedUrl);
+}

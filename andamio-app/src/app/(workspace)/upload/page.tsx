@@ -14,6 +14,7 @@ interface UploadPageProps {
     institutionId?: string;
     courseId?: string;
     studentId?: string;
+    gradeLabel?: string;
   }>;
 }
 
@@ -49,6 +50,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
         <FileUploadForm
           courses={data.courses}
           defaultCourseId={params?.courseId}
+          defaultGradeLabel={params?.gradeLabel}
           defaultInstitutionId={params?.institutionId}
           defaultScope={safeScope}
           defaultStudentId={params?.studentId}

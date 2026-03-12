@@ -16,7 +16,7 @@ const quickActions = [
   {
     href: "/upload",
     label: "Subir archivo",
-    description: "Cargar un material y etiquetarlo por colegio, curso o alumno.",
+    description: "Cargar un material y etiquetarlo por colegio, grado, curso o alumno.",
     icon: FileUp,
     toneClass: "bg-[rgba(188,203,79,0.2)] text-[var(--accent-strong)]",
   },
@@ -102,7 +102,7 @@ export default async function DashboardPage() {
       <SectionCard
         eyebrow="Busqueda de archivos"
         title="Encontrar material rapido"
-        description="Busca por colegio, curso, materia, tipo o nombre de archivo desde el dashboard."
+        description="Busca por colegio, grado, curso puntual, materia, tipo o nombre de archivo desde el dashboard."
       >
         <LibrarySearchPanel
           action="/library"
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
                 {file.title}
               </p>
               <p className="mt-2 text-base muted-copy">
-                {file.kind} - {file.scope}
+                {file.kind} - {file.gradeLabel ?? file.scope}
               </p>
               <p className="mt-3 text-base text-[var(--foreground)]">
                 {file.subject} - {file.year}

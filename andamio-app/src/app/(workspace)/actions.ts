@@ -298,13 +298,10 @@ export async function createLibraryFileAction(formData: FormData) {
   const institutionId = optionalString(formData, "institution_id");
   const courseId = optionalString(formData, "course_id");
   const studentId = optionalString(formData, "student_id");
+  const gradeLabel = optionalString(formData, "grade_label");
 
-  if (scope === "Institucion" && !institutionId) {
-    throw new Error("Elegi un colegio o institucion para clasificar el archivo.");
-  }
-
-  if (scope === "Curso" && (!institutionId || !courseId)) {
-    throw new Error("Para un archivo de curso, elegi colegio y curso.");
+  if (scope === "Curso" && !courseId && !gradeLabel) {
+    throw new Error("Para un archivo de curso, elegi un grado o un curso puntual.");
   }
 
   if (scope === "Alumno" && !studentId) {
@@ -329,7 +326,7 @@ export async function createLibraryFileAction(formData: FormData) {
     resolvedCourseId = studentRow.course_id;
   }
 
-  if (scope === "Curso" && courseId && !resolvedInstitutionId) {
+  if (courseId) {
     const { data: courseRow, error: courseError } = await actorContext.supabase
       .from("courses")
       .select("institution_id")
@@ -350,15 +347,25 @@ export async function createLibraryFileAction(formData: FormData) {
     "bin";
   const safeTitle = slugify(requiredString(formData, "title"));
   const folder = slugify(kind);
+  const gradeFolder = gradeLabel ? `grades/${slugify(gradeLabel)}` : null;
+  const baseFileName = `${Date.now()}-${safeTitle}.${extension}`;
 
-  let storagePath = `general/${folder}/${Date.now()}-${safeTitle}.${extension}`;
+  let storagePath = `general/${folder}/${baseFileName}`;
 
   if (scope === "Alumno" && studentId) {
-    storagePath = `students/${studentId}/${folder}/${Date.now()}-${safeTitle}.${extension}`;
+    storagePath = `students/${studentId}/${folder}/${baseFileName}`;
   } else if (scope === "Curso" && resolvedInstitutionId && resolvedCourseId) {
-    storagePath = `institutions/${resolvedInstitutionId}/courses/${resolvedCourseId}/${folder}/${Date.now()}-${safeTitle}.${extension}`;
+    storagePath = `institutions/${resolvedInstitutionId}/courses/${resolvedCourseId}/${folder}/${baseFileName}`;
+  } else if (scope === "Curso" && resolvedInstitutionId && gradeFolder) {
+    storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
+  } else if (scope === "Curso" && gradeFolder) {
+    storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
+  } else if (scope === "Institucion" && resolvedInstitutionId && gradeFolder) {
+    storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
   } else if (scope === "Institucion" && resolvedInstitutionId) {
-    storagePath = `institutions/${resolvedInstitutionId}/${folder}/${Date.now()}-${safeTitle}.${extension}`;
+    storagePath = `institutions/${resolvedInstitutionId}/${folder}/${baseFileName}`;
+  } else if (gradeFolder) {
+    storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
   }
 
   const storageClient = hasSupabaseServiceRole
@@ -390,6 +397,7 @@ export async function createLibraryFileAction(formData: FormData) {
     kind,
     scope,
     visibility,
+    grade_label: gradeLabel,
     subject: optionalString(formData, "subject"),
     file_size_label: formatFileSize(fileInput.size),
     school_year: optionalString(formData, "school_year"),
@@ -397,7 +405,11 @@ export async function createLibraryFileAction(formData: FormData) {
 
   let { error: fileError } = await databaseClient.from("files").insert(filePayload);
 
-  if (fileError && fileError.message.toLowerCase().includes("visibility")) {
+  if (
+    fileError &&
+    (fileError.message.toLowerCase().includes("visibility") ||
+      fileError.message.toLowerCase().includes("grade_label"))
+  ) {
     const fallbackPayload = {
       uploaded_by: filePayload.uploaded_by,
       institution_id: filePayload.institution_id,

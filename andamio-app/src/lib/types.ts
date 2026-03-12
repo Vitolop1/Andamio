@@ -88,6 +88,7 @@ export interface LibraryFile {
   institutionId?: string;
   courseId?: string;
   studentId?: string;
+  gradeLabel?: string;
   subject: string;
   year: string;
   sizeLabel: string;
