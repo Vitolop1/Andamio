@@ -70,8 +70,8 @@ export function ThemeSettingsCard() {
             className={cx(
               "text-left rounded-[24px] border px-5 py-5 transition",
               active
-                ? "border-[rgba(146,124,183,0.24)] bg-[rgba(146,124,183,0.12)]"
-                : "border-[rgba(76,63,97,0.08)] bg-white/80 hover:bg-[rgba(146,124,183,0.06)]",
+                ? "border-[color:var(--border)] bg-[color:var(--primary-soft)]"
+                : "border-[color:var(--border)] bg-white/80 hover:bg-[color:var(--primary-soft)]",
             )}
             key={option.value}
             onClick={() => applyTheme(option.value)}
@@ -83,7 +83,7 @@ export function ThemeSettingsCard() {
                   "grid h-11 w-11 place-items-center rounded-2xl",
                   active
                     ? "bg-[var(--primary)] text-white"
-                    : "bg-[rgba(146,124,183,0.12)] text-[var(--foreground)]",
+                    : "bg-[var(--surface-strong)] text-[var(--foreground)]",
                 )}
               >
                 <Icon className="h-5 w-5" />

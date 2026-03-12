@@ -67,8 +67,8 @@ export function StudentShell({ children, studentName }: StudentShellProps) {
                 className={cx(
                   "flex items-center gap-3 rounded-[22px] border px-4 py-3.5 transition",
                   active
-                    ? "border-[rgba(146,124,183,0.22)] bg-[rgba(146,124,183,0.14)]"
-                    : "border-transparent hover:border-[rgba(76,63,97,0.08)] hover:bg-white/74",
+                    ? "border-[color:var(--border)] bg-[color:var(--primary-soft)]"
+                    : "border-transparent hover:border-[color:var(--border)] hover:bg-white/74",
                 )}
                 href={item.href}
                 key={item.href}
@@ -78,7 +78,7 @@ export function StudentShell({ children, studentName }: StudentShellProps) {
                     "grid h-10 w-10 place-items-center rounded-2xl",
                     active
                       ? "bg-[var(--primary)] text-white"
-                      : "bg-[rgba(146,124,183,0.12)] text-[var(--foreground)]",
+                      : "bg-[var(--surface-strong)] text-[var(--foreground)]",
                   )}
                 >
                   <Icon className="h-[18px] w-[18px]" />
