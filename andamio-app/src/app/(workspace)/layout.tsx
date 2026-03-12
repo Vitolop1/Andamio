@@ -2,6 +2,7 @@ import { AppShell } from "@/components/app-shell";
 import { loadAppData } from "@/lib/app-data";
 import { hasSupabaseEnv, isDemoBypassEnabled } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { formatIsoDate } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -23,16 +24,30 @@ export default async function WorkspaceLayout({
   }
 
   const data = await loadAppData();
-  const sessionsToday = data.scheduleEvents.filter(
-    (event) => event.date === "2026-03-12",
-  ).length;
+  const todayIso = formatIsoDate(new Date());
+  const visibleStudents =
+    data.currentProfessional.role === "admin"
+      ? data.students
+      : data.students.filter((student) =>
+          student.assignedProfessionalIds.includes(data.currentProfessional.id),
+        );
+  const visibleStudentIds = new Set(visibleStudents.map((student) => student.id));
+  const visibleEvents =
+    data.currentProfessional.role === "admin"
+      ? data.scheduleEvents
+      : data.scheduleEvents.filter(
+          (event) =>
+            event.professionalId === data.currentProfessional.id ||
+            (!!event.studentId && visibleStudentIds.has(event.studentId)),
+        );
+  const sessionsToday = visibleEvents.filter((event) => event.date === todayIso).length;
 
   return (
     <AppShell
       currentProfessional={data.currentProfessional}
       dataSource={data.source}
       sessionsToday={sessionsToday}
-      studentCount={data.students.length}
+      studentCount={visibleStudents.length}
     >
       {children}
     </AppShell>

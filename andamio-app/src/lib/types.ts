@@ -20,6 +20,7 @@ export type FileKind =
 export interface ProfessionalProfile {
   id: string;
   name: string;
+  role: Role;
   roleLabel: string;
   initials: string;
 }
@@ -68,6 +69,7 @@ export interface Student {
   nextSession: string;
   pendingTasks: number;
   notes: string;
+  assignedProfessionalIds: string[];
 }
 
 export interface Evaluation {
@@ -77,6 +79,15 @@ export interface Evaluation {
   type: string;
   date: string;
   summary: string;
+}
+
+export interface Assignment {
+  id: string;
+  studentId?: string;
+  courseId?: string;
+  title: string;
+  description: string;
+  dueAt?: string;
 }
 
 export interface LibraryFile {
@@ -102,6 +113,7 @@ export interface ScheduleEvent {
   date: string;
   startTime: string;
   endTime: string;
+  professionalId?: string;
   professional: string;
   location: string;
   studentId?: string;

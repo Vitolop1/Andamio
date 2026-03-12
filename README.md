@@ -33,7 +33,7 @@ Abrir:
 
 Despues de sincronizar usuarios, quedan estas cuentas base:
 
-- `emilia@andamio.app`
+- `emimaidanacornejo@gmail.com`
 - `rosario@andamio.app`
 - `agustina@andamio.app`
 - `admin@andamio.app`

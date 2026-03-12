@@ -33,6 +33,11 @@ export const primaryNavigationItems: NavigationItem[] = [
     icon: GraduationCap,
   },
   {
+    href: "/library",
+    label: "Biblioteca",
+    icon: FileStack,
+  },
+  {
     href: "/institutions",
     label: "Colegios",
     icon: Building2,
@@ -45,11 +50,6 @@ export const primaryNavigationItems: NavigationItem[] = [
 ];
 
 export const secondaryNavigationItems: NavigationItem[] = [
-  {
-    href: "/library",
-    label: "Biblioteca",
-    icon: FileStack,
-  },
   {
     href: "/courses",
     label: "Cursos",

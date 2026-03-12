@@ -78,7 +78,7 @@ npm run sync:accounts
 
 Eso actualiza perfiles y usuarios Auth para:
 
-- `emilia@andamio.app`
+- `emimaidanacornejo@gmail.com`
 - `rosario@andamio.app`
 - `agustina@andamio.app`
 

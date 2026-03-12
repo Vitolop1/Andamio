@@ -11,6 +11,7 @@ import {
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
+  EventStatus,
   FileKind,
   FileScope,
   FileVisibility,
@@ -48,6 +49,19 @@ function optionalString(formData: FormData, key: string) {
   return trimmed ? trimmed : null;
 }
 
+function multipleStrings(formData: FormData, key: string) {
+  return formData
+    .getAll(key)
+    .flatMap((value) => {
+      if (typeof value !== "string") {
+        return [];
+      }
+
+      const trimmed = value.trim();
+      return trimmed ? [trimmed] : [];
+    });
+}
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -63,6 +77,15 @@ function formatFileSize(value: number) {
   }
 
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function toTimeMinutes(value: string) {
+  const [hours, minutes] = value.split(":").map((chunk) => Number(chunk));
+  return hours * 60 + minutes;
+}
+
+function normalizeTimeForDatabase(value: string) {
+  return value.length === 5 ? `${value}:00` : value;
 }
 
 async function ensureStorageBucket() {
@@ -440,4 +463,164 @@ export async function createLibraryFileAction(formData: FormData) {
   }
 
   redirect("/library");
+}
+
+export async function upsertScheduleEventAction(formData: FormData) {
+  const { supabase, actor } = await resolveActorProfile();
+  const eventId = optionalString(formData, "event_id");
+  const week = optionalString(formData, "week");
+  const professionalId = optionalString(formData, "professional_id") ?? actor.id;
+  const date = requiredString(formData, "date");
+  const startTime = requiredString(formData, "start_time");
+  const endTime = requiredString(formData, "end_time");
+  const title = optionalString(formData, "title");
+  const location = optionalString(formData, "location") ?? "Andamio";
+  const status = (optionalString(formData, "status") ?? "confirmada") as EventStatus;
+
+  if (toTimeMinutes(endTime) <= toTimeMinutes(startTime)) {
+    throw new Error("La hora de fin tiene que ser posterior a la de inicio.");
+  }
+
+  const redirectWeek = week ?? date;
+
+  if (eventId) {
+    const studentId = optionalString(formData, "student_id");
+    let resolvedTitle = title;
+
+    if (!resolvedTitle && studentId) {
+      const { data: student, error: studentError } = await supabase
+        .from("students")
+        .select("first_name, last_name")
+        .eq("id", studentId)
+        .single<{ first_name: string; last_name: string }>();
+
+      if (studentError || !student) {
+        throw studentError ?? new Error("No se pudo resolver el alumno.");
+      }
+
+      resolvedTitle = `Sesion individual - ${student.first_name} ${student.last_name}`;
+    }
+
+    const { error } = await supabase
+      .from("schedule_events")
+      .update({
+        student_id: studentId,
+        professional_id: professionalId,
+        title: resolvedTitle ?? "Bloque general",
+        event_date: date,
+        start_time: normalizeTimeForDatabase(startTime),
+        end_time: normalizeTimeForDatabase(endTime),
+        location,
+        status,
+      })
+      .eq("id", eventId);
+
+    if (error) {
+      throw error;
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/schedule");
+    revalidatePath("/students");
+
+    if (studentId) {
+      revalidatePath(`/students/${studentId}`);
+    }
+
+    redirect(`/schedule?week=${redirectWeek}`);
+  }
+
+  const studentIds = multipleStrings(formData, "student_ids");
+
+  if (!studentIds.length && !title) {
+    throw new Error("Si no elegis alumnos, escribi un titulo para el bloque.");
+  }
+
+  if (!studentIds.length) {
+    const { error } = await supabase.from("schedule_events").insert({
+      professional_id: professionalId,
+      student_id: null,
+      title,
+      event_date: date,
+      start_time: normalizeTimeForDatabase(startTime),
+      end_time: normalizeTimeForDatabase(endTime),
+      location,
+      status,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/schedule");
+    redirect(`/schedule?week=${redirectWeek}`);
+  }
+
+  const { data: students, error: studentsError } = await supabase
+    .from("students")
+    .select("id, first_name, last_name")
+    .in("id", studentIds);
+
+  if (studentsError) {
+    throw studentsError;
+  }
+
+  const studentMap = new Map(
+    (students ?? []).map((student) => [
+      student.id,
+      `${student.first_name} ${student.last_name}`,
+    ]),
+  );
+
+  const records = studentIds.map((studentId) => ({
+    id: randomUUID(),
+    professional_id: professionalId,
+    student_id: studentId,
+    title: title ?? `Sesion individual - ${studentMap.get(studentId) ?? "Alumno"}`,
+    event_date: date,
+    start_time: normalizeTimeForDatabase(startTime),
+    end_time: normalizeTimeForDatabase(endTime),
+    location,
+    status,
+  }));
+
+  const { error } = await supabase.from("schedule_events").insert(records);
+
+  if (error) {
+    throw error;
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/schedule");
+  revalidatePath("/students");
+
+  for (const studentId of studentIds) {
+    revalidatePath(`/students/${studentId}`);
+  }
+
+  redirect(`/schedule?week=${redirectWeek}`);
+}
+
+export async function deleteScheduleEventAction(formData: FormData) {
+  const { supabase } = await resolveActorProfile();
+  const eventId = requiredString(formData, "event_id");
+  const studentId = optionalString(formData, "student_id");
+  const week = optionalString(formData, "week");
+
+  const { error } = await supabase.from("schedule_events").delete().eq("id", eventId);
+
+  if (error) {
+    throw error;
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/schedule");
+  revalidatePath("/students");
+
+  if (studentId) {
+    revalidatePath(`/students/${studentId}`);
+  }
+
+  redirect(week ? `/schedule?week=${week}` : "/schedule");
 }

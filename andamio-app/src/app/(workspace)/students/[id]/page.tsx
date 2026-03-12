@@ -21,6 +21,14 @@ export default async function StudentDetailPage({
     notFound();
   }
 
+  const canAccessStudent =
+    data.currentProfessional.role === "admin" ||
+    student.assignedProfessionalIds.includes(data.currentProfessional.id);
+
+  if (!canAccessStudent) {
+    notFound();
+  }
+
   const institution = data.institutions.find(
     (item) => item.id === student.institutionId,
   );

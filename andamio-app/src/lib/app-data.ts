@@ -1,5 +1,6 @@
 import { cache } from "react";
 import {
+  assignments as mockAssignments,
   courses as mockCourses,
   currentProfessional as mockProfessional,
   evaluations as mockEvaluations,
@@ -17,6 +18,7 @@ import { inferGradeLabel } from "@/lib/grades";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
+  Assignment,
   Course,
   Evaluation,
   Institution,
@@ -117,6 +119,10 @@ interface ScheduleEventRow {
 interface AssignmentRow {
   id: string;
   student_id: string | null;
+  course_id: string | null;
+  title: string;
+  description: string | null;
+  due_at: string | null;
 }
 
 export interface AppDataBundle {
@@ -127,6 +133,7 @@ export interface AppDataBundle {
   courses: Course[];
   students: Student[];
   evaluations: Evaluation[];
+  assignments: Assignment[];
   libraryFiles: LibraryFile[];
   scheduleEvents: ScheduleEvent[];
 }
@@ -139,14 +146,27 @@ function getMockBundle(): AppDataBundle {
       {
         id: mockProfessional.id,
         name: mockProfessional.name,
-        email: "emilia@andamio.app",
+        email: "emimaidanacornejo@gmail.com",
         role: "admin",
+      },
+      {
+        id: "11111111-1111-1111-1111-111111111112",
+        name: "Prof. Rosario Maidana",
+        email: "rosario@andamio.app",
+        role: "profesional",
+      },
+      {
+        id: "11111111-1111-1111-1111-111111111113",
+        name: "Prof. Agustina Esquiu",
+        email: "agustina@andamio.app",
+        role: "profesional",
       },
     ],
     institutions: mockInstitutions,
     courses: mockCourses,
     students: mockStudents,
     evaluations: mockEvaluations,
+    assignments: mockAssignments,
     libraryFiles: mockLibraryFiles,
     scheduleEvents: mockScheduleEvents,
   };
@@ -278,7 +298,9 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
           "id, title, event_date, start_time, end_time, professional_id, location, student_id, status",
         )
         .order("event_date", { ascending: true }),
-      supabase.from("assignments").select("id, student_id"),
+      supabase
+        .from("assignments")
+        .select("id, student_id, course_id, title, description, due_at"),
     ]);
 
     const results = [
@@ -327,9 +349,10 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       ? {
           id: firstProfessional.id,
           name: firstProfessional.full_name,
+          role: firstProfessional.role,
           roleLabel:
             firstProfessional.role === "admin"
-              ? "Administracion"
+              ? "Administradora"
               : "Profesional",
           initials: initialsFromName(firstProfessional.full_name),
         }
@@ -356,16 +379,41 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       }
     }
 
+    const professionalIdsByStudent = new Map<string, string[]>();
+    for (const assignment of studentProfessionalRows) {
+      const ids = professionalIdsByStudent.get(assignment.student_id) ?? [];
+
+      if (!ids.includes(assignment.professional_id)) {
+        ids.push(assignment.professional_id);
+      }
+
+      professionalIdsByStudent.set(assignment.student_id, ids);
+    }
+
     const assignmentCountByStudent = new Map<string, number>();
     for (const assignment of assignmentRows) {
-      if (!assignment.student_id) {
+      if (assignment.student_id) {
+        assignmentCountByStudent.set(
+          assignment.student_id,
+          (assignmentCountByStudent.get(assignment.student_id) ?? 0) + 1,
+        );
         continue;
       }
 
-      assignmentCountByStudent.set(
-        assignment.student_id,
-        (assignmentCountByStudent.get(assignment.student_id) ?? 0) + 1,
-      );
+      if (!assignment.course_id) {
+        continue;
+      }
+
+      for (const student of studentRows) {
+        if (student.course_id !== assignment.course_id) {
+          continue;
+        }
+
+        assignmentCountByStudent.set(
+          student.id,
+          (assignmentCountByStudent.get(student.id) ?? 0) + 1,
+        );
+      }
     }
 
     const earliestEventByStudent = new Map<string, ScheduleEventRow>();
@@ -434,6 +482,8 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
           : student.created_at,
         pendingTasks: assignmentCountByStudent.get(student.id) ?? 0,
         notes: student.notes ?? "Sin observaciones cargadas.",
+        assignedProfessionalIds:
+          professionalIdsByStudent.get(student.id) ?? [],
       };
     });
 
@@ -444,6 +494,15 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       type: evaluation.evaluation_type,
       date: evaluation.evaluated_at,
       summary: evaluation.summary ?? "Sin resumen cargado.",
+    }));
+
+    const assignments: Assignment[] = assignmentRows.map((assignment) => ({
+      id: assignment.id,
+      studentId: assignment.student_id ?? undefined,
+      courseId: assignment.course_id ?? undefined,
+      title: assignment.title,
+      description: assignment.description ?? "Sin detalle cargado.",
+      dueAt: assignment.due_at ?? undefined,
     }));
 
     const visibleFileRows = fileRows.filter((file) => {
@@ -492,6 +551,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       date: event.event_date,
       startTime: normalizeTime(event.start_time),
       endTime: normalizeTime(event.end_time),
+      professionalId: event.professional_id ?? undefined,
       professional:
         (event.professional_id
           ? profileMap.get(event.professional_id)?.full_name
@@ -509,6 +569,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       courses,
       students,
       evaluations,
+      assignments,
       libraryFiles,
       scheduleEvents,
     };

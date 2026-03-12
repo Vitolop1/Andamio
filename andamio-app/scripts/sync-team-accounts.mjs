@@ -54,27 +54,27 @@ const supabase = createClient(url, serviceRoleKey, {
 const accounts = [
   {
     profileId: "11111111-1111-1111-1111-111111111111",
-    oldEmail: "valentina@andamio.app",
-    email: "emilia@andamio.app",
+    legacyEmails: ["valentina@andamio.app", "emilia@andamio.app"],
+    email: "emimaidanacornejo@gmail.com",
     fullName: "Lic. Emilia Maidana",
     role: "admin",
-    password: "emilia",
+    password: "Emilia2026",
   },
   {
     profileId: "11111111-1111-1111-1111-111111111112",
-    oldEmail: "natalia@andamio.app",
+    legacyEmails: ["natalia@andamio.app", "rosario@andamio.app"],
     email: "rosario@andamio.app",
     fullName: "Prof. Rosario Maidana",
     role: "profesional",
-    password: "rosario",
+    password: "Rosario2026",
   },
   {
     profileId: "11111111-1111-1111-1111-111111111113",
-    oldEmail: "rocio@andamio.app",
+    legacyEmails: ["rocio@andamio.app", "agustina@andamio.app"],
     email: "agustina@andamio.app",
     fullName: "Prof. Agustina Esquiu",
     role: "profesional",
-    password: "agustina",
+    password: "Agustina2026",
   },
 ];
 
@@ -100,7 +100,9 @@ for (const account of accounts) {
   }
 
   const existingUser = authUsers.find(
-    (user) => user.email === account.email || user.email === account.oldEmail,
+    (user) =>
+      user.email === account.email ||
+      account.legacyEmails.includes(user.email ?? ""),
   );
 
   if (existingUser) {

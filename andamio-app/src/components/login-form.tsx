@@ -93,7 +93,7 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
           className="input-field"
           defaultValue=""
           name="email"
-          placeholder="emilia@andamio.app"
+          placeholder="emimaidanacornejo@gmail.com"
           type="email"
         />
       </label>
