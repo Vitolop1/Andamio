@@ -24,3 +24,6 @@ Thumbs.db
 
 # supabase temp
 **/supabase/.temp
+
+# local git backup
+.andamio-app-inner-git-backup/
