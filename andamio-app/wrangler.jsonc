@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "andamio",
+  "name": "andamio-web",
   "compatibility_date": "2026-03-10",
   "compatibility_flags": [
     "nodejs_compat"
@@ -13,7 +13,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "andamio"
+      "service": "andamio-web"
     }
   ],
   "r2_buckets": [
