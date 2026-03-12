@@ -1,16 +1,20 @@
 insert into public.profiles (id, full_name, email, role)
 values
-  ('11111111-1111-1111-1111-111111111111', 'Lic. Valentina Alvarez', 'valentina@andamio.app', 'profesional'),
-  ('11111111-1111-1111-1111-111111111112', 'Prof. Natalia Figueroa', 'natalia@andamio.app', 'profesional'),
-  ('11111111-1111-1111-1111-111111111113', 'Prof. Rocio Guzman', 'rocio@andamio.app', 'profesional'),
+  ('11111111-1111-1111-1111-111111111111', 'Lic. Emilia Alvarez', 'emilia@andamio.app', 'profesional'),
+  ('11111111-1111-1111-1111-111111111112', 'Prof. Rosario Figueroa', 'rosario@andamio.app', 'profesional'),
+  ('11111111-1111-1111-1111-111111111113', 'Prof. Agustina Guzman', 'agustina@andamio.app', 'profesional'),
   ('11111111-1111-1111-1111-111111111114', 'Admin Andamio', 'admin@andamio.app', 'admin')
-on conflict (id) do nothing;
+on conflict (id) do update
+set
+  full_name = excluded.full_name,
+  email = excluded.email,
+  role = excluded.role;
 
 insert into public.institutions (id, name, city, province, lead_name, created_by)
 values
-  ('22222222-2222-2222-2222-222222222221', 'Consultorio Andamio', 'Salta', 'Salta', 'Lic. Valentina Alvarez', '11111111-1111-1111-1111-111111111111'),
-  ('22222222-2222-2222-2222-222222222222', 'Colegio Santo Tomas de Aquino', 'Salta', 'Salta', 'Prof. Natalia Figueroa', '11111111-1111-1111-1111-111111111114'),
-  ('22222222-2222-2222-2222-222222222223', 'Colegio Belgrano', 'Salta', 'Salta', 'Prof. Rocio Guzman', '11111111-1111-1111-1111-111111111114'),
+  ('22222222-2222-2222-2222-222222222221', 'Consultorio Andamio', 'Salta', 'Salta', 'Lic. Emilia Alvarez', '11111111-1111-1111-1111-111111111111'),
+  ('22222222-2222-2222-2222-222222222222', 'Colegio Santo Tomas de Aquino', 'Salta', 'Salta', 'Prof. Rosario Figueroa', '11111111-1111-1111-1111-111111111114'),
+  ('22222222-2222-2222-2222-222222222223', 'Colegio Belgrano', 'Salta', 'Salta', 'Prof. Agustina Guzman', '11111111-1111-1111-1111-111111111114'),
   ('22222222-2222-2222-2222-222222222224', 'Colegio San Pablo', 'Salta', 'Salta', 'Equipo Andamio', '11111111-1111-1111-1111-111111111114'),
   ('22222222-2222-2222-2222-222222222225', 'Colegio Santa Maria', 'Salta', 'Salta', 'Equipo Andamio', '11111111-1111-1111-1111-111111111114'),
   ('22222222-2222-2222-2222-222222222226', 'Colegio Santa Teresa de Jesus', 'Salta', 'Salta', 'Equipo Andamio', '11111111-1111-1111-1111-111111111114'),
@@ -35,9 +39,16 @@ insert into public.courses (id, institution_id, name, school_year, level, shift,
 values
   ('33333333-3333-3333-3333-333333333331', '22222222-2222-2222-2222-222222222222', '3ro A', '2026', 'Primaria', 'Manana', 'Soledad Cruz'),
   ('33333333-3333-3333-3333-333333333332', '22222222-2222-2222-2222-222222222222', '5to B', '2026', 'Primaria', 'Tarde', 'Marina Flores'),
-  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lenguaje', '2026', 'Consultorio', 'Mixto', 'Valentina Alvarez'),
-  ('33333333-3333-3333-3333-333333333334', '22222222-2222-2222-2222-222222222223', 'Apoyo secundario', '2026', 'Secundaria', 'Tarde', 'Rocio Guzman')
-on conflict (id) do nothing;
+  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lenguaje', '2026', 'Consultorio', 'Mixto', 'Emilia Alvarez'),
+  ('33333333-3333-3333-3333-333333333334', '22222222-2222-2222-2222-222222222223', 'Apoyo secundario', '2026', 'Secundaria', 'Tarde', 'Agustina Guzman')
+on conflict (id) do update
+set
+  institution_id = excluded.institution_id,
+  name = excluded.name,
+  school_year = excluded.school_year,
+  level = excluded.level,
+  shift = excluded.shift,
+  teacher_name = excluded.teacher_name;
 
 insert into public.students (
   id,

@@ -4,16 +4,6 @@ drop policy if exists "professionals insert files" on public.files;
 drop policy if exists "professionals update own files" on public.files;
 drop policy if exists "professionals delete own files" on public.files;
 
-do $$
-begin
-  create type public.file_visibility as enum ('Equipo', 'Privado');
-exception
-  when duplicate_object then null;
-end $$;
-
-alter table public.files
-add column if not exists visibility public.file_visibility not null default 'Equipo';
-
 create or replace function public.current_profile_ids()
 returns setof uuid
 language sql

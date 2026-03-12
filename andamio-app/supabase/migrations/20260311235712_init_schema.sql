@@ -1,0 +1,1 @@
+-- Legacy placeholder migration kept so local history matches the remote project.

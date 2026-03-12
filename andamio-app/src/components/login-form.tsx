@@ -11,10 +11,22 @@ interface LoginFormProps {
 
 export function LoginForm({ authEnabled }: LoginFormProps) {
   const router = useRouter();
-  const [email, setEmail] = useState("valentina@andamio.app");
-  const [password, setPassword] = useState("demo-andamio");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  function mapLoginError(message: string) {
+    const normalized = message.toLowerCase();
+
+    if (normalized.includes("missing email or phone")) {
+      return "Escribi un email y una contrasena antes de entrar.";
+    }
+
+    if (normalized.includes("invalid login credentials")) {
+      return "Ese email o contrasena no coincide con un usuario cargado.";
+    }
+
+    return message;
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,6 +34,21 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
 
     if (!authEnabled) {
       router.push("/dashboard");
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const email =
+      typeof formData.get("email") === "string"
+        ? String(formData.get("email")).trim()
+        : "";
+    const password =
+      typeof formData.get("password") === "string"
+        ? String(formData.get("password"))
+        : "";
+
+    if (!email || !password) {
+      setErrorMessage("Escribi un email y una contrasena antes de entrar.");
       return;
     }
 
@@ -36,7 +63,7 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
         });
 
         if (error) {
-          setErrorMessage(error.message);
+          setErrorMessage(mapLoginError(error.message));
           setIsPending(false);
           return;
         }
@@ -62,20 +89,24 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
       <label className="block">
         <span className="form-label">Email</span>
         <input
+          autoComplete="email"
           className="input-field"
-          onChange={(event) => setEmail(event.target.value)}
+          defaultValue=""
+          name="email"
+          placeholder="emilia@andamio.app"
           type="email"
-          value={email}
         />
       </label>
 
       <label className="block">
         <span className="form-label">Password</span>
         <input
+          autoComplete="current-password"
           className="input-field"
-          onChange={(event) => setPassword(event.target.value)}
+          defaultValue=""
+          name="password"
+          placeholder="Tu contrasena"
           type="password"
-          value={password}
         />
       </label>
 

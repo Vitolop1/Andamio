@@ -29,6 +29,22 @@ Abrir:
 - `http://localhost:3000`
 - `http://localhost:3000/login`
 
+## Cuentas iniciales del equipo
+
+Despues de sincronizar usuarios, quedan estas cuentas base:
+
+- `emilia@andamio.app`
+- `rosario@andamio.app`
+- `agustina@andamio.app`
+- `admin@andamio.app`
+
+Para recrearlas o actualizarlas desde tu computadora:
+
+```bash
+cd andamio-app
+npm run sync:accounts
+```
+
 ## Variables de entorno
 
 En `andamio-app/.env.local`:
@@ -64,6 +80,19 @@ git push -u origin main
 ```
 
 Antes de hacer `git push`, crea el repo vacio en GitHub sin README, sin `.gitignore` y sin license.
+
+## GitHub Desktop
+
+Si queres manejar este repo con GitHub Desktop en tu compu:
+
+1. Abri GitHub Desktop.
+2. Hace click en `File > Add local repository`.
+3. Elegi `C:\Users\PC\Andamio`.
+4. Acepta publicar o vincular el repo a `Vitolop1/Andamio`.
+5. Cada vez que cambies algo, vas a ver los archivos modificados.
+6. Escribi un resumen, hace `Commit to main` y despues `Push origin`.
+
+GitHub Desktop no tiene que estar abierto todo el dia. Solo lo abris cuando queres revisar cambios, commitear o subir.
 
 ## Deploy online
 

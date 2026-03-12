@@ -68,6 +68,20 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 Sin esas variables la UI igual levanta usando datos mock, pero la integracion real con Supabase queda en espera.
 
+## Cuentas del equipo
+
+Si queres dejar las cuentas base del equipo con los nombres definidos hoy, corre:
+
+```bash
+npm run sync:accounts
+```
+
+Eso actualiza perfiles y usuarios Auth para:
+
+- `emilia@andamio.app`
+- `rosario@andamio.app`
+- `agustina@andamio.app`
+
 ## Estructura util
 
 - `src/app`: rutas y paginas
