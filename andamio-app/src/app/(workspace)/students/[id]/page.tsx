@@ -134,7 +134,7 @@ export default async function StudentDetailPage({
                   <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
                     Usuario
                   </p>
-                  <p className="mt-2 text-base text-[var(--foreground)]">
+                  <p className="mt-2 break-all text-base text-[var(--foreground)]">
                     {student.portalEmail}
                   </p>
                 </div>
@@ -254,7 +254,7 @@ export default async function StudentDetailPage({
                 ) : null}
                 <a
                   className="secondary-button mt-4 inline-flex text-base"
-                  href={`/api/files/${file.id}`}
+                  href={file.downloadUrl ?? `/api/files/${file.id}`}
                   rel="noreferrer"
                   target="_blank"
                 >

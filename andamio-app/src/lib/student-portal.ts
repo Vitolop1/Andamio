@@ -23,7 +23,8 @@ export function buildStudentPortalEmail(
   const first = normalizeChunk(firstName) || "alumno";
   const last = normalizeChunk(lastName) || "andamio";
   const suffix = studentId.replace(/-/g, "").slice(0, 6);
-  return `${first}.${last}.${suffix}@alumnos.andamio.app`;
+  const lastInitial = last[0] ?? "a";
+  return `${first}.${lastInitial}${suffix}@andamiosaltas.com`;
 }
 
 export function buildStudentPortalPassword(firstName: string) {

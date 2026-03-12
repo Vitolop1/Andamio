@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { loadSignedFileUrlMap } from "@/lib/file-download";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Assignment, Evaluation, LibraryFile } from "@/lib/types";
 
@@ -61,21 +62,26 @@ export const loadStudentPortalData = cache(async (): Promise<StudentPortalBundle
 
   const studentId = studentRow.id;
   const courseId = studentRow.course_id;
+  const institutionId = studentRow.institution_id;
   const studentFilesQuery = courseId
     ? supabase
         .from("files")
         .select(
-          "id, title, kind, scope, visibility, institution_id, course_id, student_id, grade_label, subject, file_size_label, school_year, created_at",
+          "id, title, kind, scope, visibility, institution_id, course_id, student_id, grade_label, subject, file_size_label, school_year, created_at, storage_path",
         )
-        .or(`student_id.eq.${studentId},course_id.eq.${courseId}`)
+        .or(
+          `student_id.eq.${studentId},course_id.eq.${courseId},and(scope.eq.Institucion,institution_id.eq.${institutionId})`,
+        )
         .eq("visibility", "Equipo")
         .order("created_at", { ascending: false })
     : supabase
         .from("files")
         .select(
-          "id, title, kind, scope, visibility, institution_id, course_id, student_id, grade_label, subject, file_size_label, school_year, created_at",
+          "id, title, kind, scope, visibility, institution_id, course_id, student_id, grade_label, subject, file_size_label, school_year, created_at, storage_path",
         )
-        .eq("student_id", studentId)
+        .or(
+          `student_id.eq.${studentId},and(scope.eq.Institucion,institution_id.eq.${institutionId})`,
+        )
         .eq("visibility", "Equipo")
         .order("created_at", { ascending: false });
 
@@ -127,6 +133,13 @@ export const loadStudentPortalData = cache(async (): Promise<StudentPortalBundle
     dueAt: item.due_at ?? undefined,
   }));
 
+  const signedFileUrlMap = await loadSignedFileUrlMap(
+    (filesResult.data ?? []).map((item) => ({
+      id: item.id,
+      storagePath: item.storage_path,
+    })),
+  );
+
   const files: LibraryFile[] = (filesResult.data ?? []).map((item) => ({
     id: item.id,
     title: item.title,
@@ -142,6 +155,7 @@ export const loadStudentPortalData = cache(async (): Promise<StudentPortalBundle
     sizeLabel: item.file_size_label ?? "Sin tamano",
     uploadedAt: item.created_at,
     uploadedBy: "Andamio",
+    downloadUrl: signedFileUrlMap.get(item.id) ?? undefined,
   }));
 
   const institutionName = Array.isArray(studentRow.institutions)

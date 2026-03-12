@@ -24,7 +24,7 @@ interface FileRow {
 }
 
 export async function GET(
-  request: Request,
+  _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   if (!hasSupabaseServiceRole) {
@@ -40,7 +40,9 @@ export async function GET(
   } = await supabase.auth.getUser();
 
   if (!user || !user.email) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return new Response("Necesitas iniciar sesion para abrir este archivo.", {
+      status: 401,
+    });
   }
 
   const adminClient = createSupabaseAdminClient();

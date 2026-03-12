@@ -30,11 +30,11 @@ export default async function LoginPage() {
         <div className="flex flex-col items-center">
           <Image
             alt="Logo de Andamio"
-            className="h-auto w-[260px] sm:w-[340px]"
-            height={160}
+            className="h-auto w-[300px] sm:w-[400px]"
+            height={180}
             priority
             src="/andamiologo.png"
-            width={340}
+            width={400}
           />
           <p className="eyebrow mt-6">Acceso privado</p>
           <h1 className="display-font mt-4 text-6xl font-semibold text-[var(--foreground)] sm:text-7xl">

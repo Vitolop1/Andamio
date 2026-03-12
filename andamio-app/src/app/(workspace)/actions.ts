@@ -57,6 +57,16 @@ function optionalString(formData: FormData, key: string) {
   return trimmed ? trimmed : null;
 }
 
+function firstNonEmpty(...values: Array<string | null | undefined>) {
+  for (const value of values) {
+    if (value && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
 function multipleStrings(formData: FormData, key: string) {
   return formData
     .getAll(key)
@@ -77,6 +87,14 @@ function slugify(value: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+}
+
+function humanizeFileName(value: string) {
+  return value
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function formatFileSize(value: number) {
@@ -216,6 +234,52 @@ function buildScheduleRedirectPath(options: {
   }
 
   return `/schedule?${params.toString()}`;
+}
+
+function buildUploadRedirectPath(formData: FormData, errorMessage?: string) {
+  const params = new URLSearchParams();
+  const scope = optionalString(formData, "scope");
+  const institutionId = optionalString(formData, "institution_id");
+  const courseId = optionalString(formData, "course_id");
+  const studentId = optionalString(formData, "student_id");
+  const gradeLabel = optionalString(formData, "grade_label");
+
+  if (scope) {
+    params.set("scope", scope);
+  }
+
+  if (institutionId) {
+    params.set("institutionId", institutionId);
+  }
+
+  if (courseId) {
+    params.set("courseId", courseId);
+  }
+
+  if (studentId) {
+    params.set("studentId", studentId);
+  }
+
+  if (gradeLabel) {
+    params.set("gradeLabel", gradeLabel);
+  }
+
+  if (errorMessage) {
+    params.set("error", errorMessage);
+  }
+
+  const query = params.toString();
+  return query ? `/upload?${query}` : "/upload";
+}
+
+function isRedirectThrowable(error: unknown) {
+  return (
+    !!error &&
+    typeof error === "object" &&
+    "digest" in error &&
+    typeof error.digest === "string" &&
+    error.digest.startsWith("NEXT_REDIRECT")
+  );
 }
 
 async function ensureStorageBucket() {
@@ -558,181 +622,325 @@ export async function createProfessionalAction(formData: FormData) {
 }
 
 export async function createLibraryFileAction(formData: FormData) {
-  const actorContext = await resolveActorProfile();
-  const actor = actorContext.actor;
-  const fileInput = formData.get("document");
+  try {
+    const actorContext = await resolveActorProfile();
+    const actor = actorContext.actor;
+    const fileInput = formData.get("document");
 
-  if (!(fileInput instanceof File) || fileInput.size === 0) {
-    throw new Error("Tenes que seleccionar un archivo para subir.");
+    if (!(fileInput instanceof File) || fileInput.size === 0) {
+      redirect(
+        buildUploadRedirectPath(
+          formData,
+          "Selecciona un archivo antes de guardar.",
+        ),
+      );
+    }
+
+    const selectedScope =
+      (optionalString(formData, "scope") as FileScope | null) ?? "Institucion";
+    const kind =
+      (optionalString(formData, "kind") as FileKind | null) ?? "Material";
+    const visibility =
+      (optionalString(formData, "visibility") as FileVisibility | null) ?? "Equipo";
+    const institutionId = optionalString(formData, "institution_id");
+    const courseId = optionalString(formData, "course_id");
+    const studentId = optionalString(formData, "student_id");
+    const gradeLabel = optionalString(formData, "grade_label");
+    const title =
+      firstNonEmpty(
+        optionalString(formData, "title"),
+        humanizeFileName(fileInput.name),
+        "Archivo",
+      ) ?? "Archivo";
+
+    let resolvedScope = selectedScope;
+
+    if (selectedScope === "Alumno" && !studentId) {
+      resolvedScope = courseId || gradeLabel ? "Curso" : "Institucion";
+    }
+
+    if (selectedScope === "Curso" && !courseId && !gradeLabel) {
+      resolvedScope = "Institucion";
+    }
+
+    const quotaClient = hasSupabaseServiceRole
+      ? createSupabaseAdminClient()
+      : actorContext.supabase;
+    const usedBytes = await getCurrentStorageUsageBytes(quotaClient);
+    const limitBytes = getAppStorageLimitBytes();
+    const nextUsage = usedBytes + fileInput.size;
+
+    if (nextUsage > limitBytes) {
+      const remainingBytes = Math.max(limitBytes - usedBytes, 0);
+      const message =
+        remainingBytes > 0
+          ? `No entra. Quedan ${formatStorageBytes(remainingBytes)} libres y este archivo pesa ${formatStorageBytes(fileInput.size)}.`
+          : "Se alcanzo el limite interno de almacenamiento.";
+      redirect(buildUploadRedirectPath(formData, message));
+    }
+
+    let resolvedInstitutionId = institutionId;
+    let resolvedCourseId = courseId;
+    let resolvedStudentId = studentId;
+
+    if (resolvedScope === "Alumno" && studentId) {
+      const { data: studentRow, error: studentError } = await actorContext.supabase
+        .from("students")
+        .select("institution_id, course_id")
+        .eq("id", studentId)
+        .single<{ institution_id: string; course_id: string | null }>();
+
+      if (studentError || !studentRow) {
+        redirect(
+          buildUploadRedirectPath(
+            formData,
+            "No se pudo resolver el alumno seleccionado.",
+          ),
+        );
+      }
+
+      resolvedInstitutionId = studentRow.institution_id;
+      resolvedCourseId = studentRow.course_id;
+    }
+
+    if (courseId) {
+      const { data: courseRow, error: courseError } = await actorContext.supabase
+        .from("courses")
+        .select("institution_id")
+        .eq("id", courseId)
+        .single<{ institution_id: string }>();
+
+      if (courseError || !courseRow) {
+        redirect(
+          buildUploadRedirectPath(
+            formData,
+            "No se pudo resolver la seccion o taller seleccionada.",
+          ),
+        );
+      }
+
+      resolvedInstitutionId = courseRow.institution_id;
+    }
+
+    if (resolvedScope !== "Alumno") {
+      resolvedStudentId = null;
+    }
+
+    if (resolvedScope !== "Curso") {
+      resolvedCourseId = null;
+    }
+
+    await ensureStorageBucket();
+
+    const extension =
+      fileInput.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ||
+      "bin";
+    const safeTitle = slugify(title);
+    const folder = slugify(kind);
+    const gradeFolder = gradeLabel ? `grades/${slugify(gradeLabel)}` : null;
+    const baseFileName = `${Date.now()}-${safeTitle}.${extension}`;
+
+    let storagePath = `general/${folder}/${baseFileName}`;
+
+    if (resolvedScope === "Alumno" && resolvedStudentId) {
+      storagePath = `students/${resolvedStudentId}/${folder}/${baseFileName}`;
+    } else if (resolvedScope === "Curso" && resolvedInstitutionId && resolvedCourseId) {
+      storagePath = `institutions/${resolvedInstitutionId}/sections/${resolvedCourseId}/${folder}/${baseFileName}`;
+    } else if (resolvedScope === "Curso" && resolvedInstitutionId && gradeFolder) {
+      storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
+    } else if (resolvedScope === "Curso" && gradeFolder) {
+      storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
+    } else if (resolvedInstitutionId && gradeFolder) {
+      storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
+    } else if (resolvedInstitutionId) {
+      storagePath = `institutions/${resolvedInstitutionId}/${folder}/${baseFileName}`;
+    } else if (gradeFolder) {
+      storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
+    }
+
+    const storageClient = hasSupabaseServiceRole
+      ? createSupabaseAdminClient()
+      : actorContext.supabase;
+    const bytes = Buffer.from(await fileInput.arrayBuffer());
+    const { error: uploadError } = await storageClient.storage
+      .from(STORAGE_BUCKET)
+      .upload(storagePath, bytes, {
+        contentType: fileInput.type || "application/octet-stream",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      redirect(
+        buildUploadRedirectPath(
+          formData,
+          "No se pudo subir el archivo. Vuelve a intentarlo.",
+        ),
+      );
+    }
+
+    const databaseClient = hasSupabaseServiceRole
+      ? createSupabaseAdminClient()
+      : actorContext.supabase;
+
+    const filePayload = {
+      uploaded_by: actor.id,
+      institution_id: resolvedInstitutionId,
+      course_id: resolvedCourseId,
+      student_id: resolvedStudentId,
+      title,
+      storage_path: storagePath,
+      kind,
+      scope: resolvedScope,
+      visibility,
+      grade_label: gradeLabel,
+      subject: optionalString(formData, "subject") ?? "General",
+      file_size_label: formatFileSize(fileInput.size),
+      file_size_bytes: fileInput.size,
+      school_year: optionalString(formData, "school_year") ?? "2026",
+    };
+
+    let { error: fileError } = await databaseClient.from("files").insert(filePayload);
+
+    if (
+      fileError &&
+      (fileError.message.toLowerCase().includes("visibility") ||
+        fileError.message.toLowerCase().includes("grade_label") ||
+        fileError.message.toLowerCase().includes("file_size_bytes"))
+    ) {
+      const fallbackPayload = {
+        uploaded_by: filePayload.uploaded_by,
+        institution_id: filePayload.institution_id,
+        course_id: filePayload.course_id,
+        student_id: filePayload.student_id,
+        title: filePayload.title,
+        storage_path: filePayload.storage_path,
+        kind: filePayload.kind,
+        scope: filePayload.scope,
+        subject: filePayload.subject,
+        file_size_label: filePayload.file_size_label,
+        school_year: filePayload.school_year,
+      };
+      const fallbackInsert = await databaseClient.from("files").insert(fallbackPayload);
+      fileError = fallbackInsert.error;
+    }
+
+    if (fileError) {
+      redirect(
+        buildUploadRedirectPath(
+          formData,
+          "No se pudo guardar la ficha del archivo.",
+        ),
+      );
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/library");
+    revalidatePath("/upload");
+
+    if (resolvedStudentId) {
+      revalidatePath(`/students/${resolvedStudentId}`);
+    }
+
+    redirect("/library");
+  } catch (error) {
+    if (isRedirectThrowable(error)) {
+      throw error;
+    }
+
+    redirect(
+      buildUploadRedirectPath(
+        formData,
+        "Hubo un problema al subir el archivo. Revisa el archivo e intenta otra vez.",
+      ),
+    );
   }
+}
 
-  const scope = (requiredString(formData, "scope") as FileScope) ?? "Curso";
-  const kind = (requiredString(formData, "kind") as FileKind) ?? "Material";
-  const visibility =
-    (optionalString(formData, "visibility") as FileVisibility | null) ?? "Equipo";
-  const institutionId = optionalString(formData, "institution_id");
-  const courseId = optionalString(formData, "course_id");
+export async function shareLibraryFileAction(formData: FormData) {
+  const { supabase, actor } = await resolveActorProfile();
+  const fileId = requiredString(formData, "file_id");
   const studentId = optionalString(formData, "student_id");
-  const gradeLabel = optionalString(formData, "grade_label");
 
-  if (scope === "Curso" && !courseId && !gradeLabel) {
-    throw new Error("Para un archivo compartido, elegi un grado o una seccion / taller.");
+  if (!studentId) {
+    redirect("/library");
   }
 
-  if (scope === "Alumno" && !studentId) {
-    throw new Error("Para un archivo de alumno, tenes que seleccionar el alumno.");
+  const { data: file, error: fileError } = await supabase
+    .from("files")
+    .select(
+      "id, title, storage_path, kind, visibility, grade_label, subject, file_size_label, file_size_bytes, school_year",
+    )
+    .eq("id", fileId)
+    .single<{
+      id: string;
+      title: string;
+      storage_path: string;
+      kind: FileKind;
+      visibility: FileVisibility | null;
+      grade_label: string | null;
+      subject: string | null;
+      file_size_label: string | null;
+      file_size_bytes: number | null;
+      school_year: string | null;
+    }>();
+
+  if (fileError || !file) {
+    redirect("/library");
   }
 
-  const quotaClient = hasSupabaseServiceRole
-    ? createSupabaseAdminClient()
-    : actorContext.supabase;
-  const usedBytes = await getCurrentStorageUsageBytes(quotaClient);
-  const limitBytes = getAppStorageLimitBytes();
-  const nextUsage = usedBytes + fileInput.size;
+  const { data: student, error: studentError } = await supabase
+    .from("students")
+    .select("id, institution_id, course_id, first_name, last_name")
+    .eq("id", studentId)
+    .single<{
+      id: string;
+      institution_id: string;
+      course_id: string | null;
+      first_name: string;
+      last_name: string;
+    }>();
 
-  if (nextUsage > limitBytes) {
-    const remainingBytes = Math.max(limitBytes - usedBytes, 0);
-    const message =
-      remainingBytes > 0
-        ? `No entra. Quedan ${formatStorageBytes(remainingBytes)} libres y este archivo pesa ${formatStorageBytes(fileInput.size)}.`
-        : "Se alcanzo el limite interno de almacenamiento.";
-    redirect(`/upload?error=${encodeURIComponent(message)}`);
+  if (studentError || !student) {
+    redirect("/library");
   }
 
-  let resolvedInstitutionId = institutionId;
-  let resolvedCourseId = courseId;
+  const { data: existingShare } = await supabase
+    .from("files")
+    .select("id")
+    .eq("student_id", student.id)
+    .eq("storage_path", file.storage_path)
+    .maybeSingle<{ id: string }>();
 
-  if (scope === "Alumno" && studentId) {
-    const { data: studentRow, error: studentError } = await actorContext.supabase
-      .from("students")
-      .select("institution_id, course_id")
-      .eq("id", studentId)
-      .single<{ institution_id: string; course_id: string | null }>();
-
-    if (studentError || !studentRow) {
-      throw studentError ?? new Error("No se pudo resolver el alumno seleccionado.");
-    }
-
-    resolvedInstitutionId = studentRow.institution_id;
-    resolvedCourseId = studentRow.course_id;
-  }
-
-  if (courseId) {
-    const { data: courseRow, error: courseError } = await actorContext.supabase
-      .from("courses")
-      .select("institution_id")
-      .eq("id", courseId)
-      .single<{ institution_id: string }>();
-
-    if (courseError || !courseRow) {
-      throw courseError ?? new Error("No se pudo resolver la seccion / taller seleccionada.");
-    }
-
-    resolvedInstitutionId = courseRow.institution_id;
-  }
-
-  await ensureStorageBucket();
-
-  const extension =
-    fileInput.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ||
-    "bin";
-  const safeTitle = slugify(requiredString(formData, "title"));
-  const folder = slugify(kind);
-  const gradeFolder = gradeLabel ? `grades/${slugify(gradeLabel)}` : null;
-  const baseFileName = `${Date.now()}-${safeTitle}.${extension}`;
-
-  let storagePath = `general/${folder}/${baseFileName}`;
-
-  if (scope === "Alumno" && studentId) {
-    storagePath = `students/${studentId}/${folder}/${baseFileName}`;
-  } else if (scope === "Curso" && resolvedInstitutionId && resolvedCourseId) {
-    storagePath = `institutions/${resolvedInstitutionId}/sections/${resolvedCourseId}/${folder}/${baseFileName}`;
-  } else if (scope === "Curso" && resolvedInstitutionId && gradeFolder) {
-    storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
-  } else if (scope === "Curso" && gradeFolder) {
-    storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
-  } else if (scope === "Institucion" && resolvedInstitutionId && gradeFolder) {
-    storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
-  } else if (scope === "Institucion" && resolvedInstitutionId) {
-    storagePath = `institutions/${resolvedInstitutionId}/${folder}/${baseFileName}`;
-  } else if (gradeFolder) {
-    storagePath = `${gradeFolder}/${folder}/${baseFileName}`;
-  }
-
-  const storageClient = hasSupabaseServiceRole
-    ? createSupabaseAdminClient()
-    : actorContext.supabase;
-  const bytes = Buffer.from(await fileInput.arrayBuffer());
-  const { error: uploadError } = await storageClient.storage
-    .from(STORAGE_BUCKET)
-    .upload(storagePath, bytes, {
-      contentType: fileInput.type || "application/octet-stream",
-      upsert: false,
+  if (!existingShare) {
+    const insertResult = await supabase.from("files").insert({
+      uploaded_by: actor.id,
+      institution_id: student.institution_id,
+      course_id: student.course_id,
+      student_id: student.id,
+      title: file.title,
+      storage_path: file.storage_path,
+      kind: file.kind,
+      scope: "Alumno",
+      visibility: "Equipo",
+      grade_label: file.grade_label,
+      subject: file.subject ?? "General",
+      file_size_label: file.file_size_label ?? "Sin tamano",
+      file_size_bytes: file.file_size_bytes ?? 0,
+      school_year: file.school_year ?? "2026",
     });
 
-  if (uploadError) {
-    throw uploadError;
+    if (insertResult.error) {
+      redirect("/library");
+    }
   }
 
-  const databaseClient = hasSupabaseServiceRole
-    ? createSupabaseAdminClient()
-    : actorContext.supabase;
-
-  const filePayload = {
-    uploaded_by: actor.id,
-    institution_id: resolvedInstitutionId,
-    course_id: resolvedCourseId,
-    student_id: studentId,
-    title: requiredString(formData, "title"),
-    storage_path: storagePath,
-    kind,
-    scope,
-    visibility,
-    grade_label: gradeLabel,
-    subject: optionalString(formData, "subject"),
-    file_size_label: formatFileSize(fileInput.size),
-    file_size_bytes: fileInput.size,
-    school_year: optionalString(formData, "school_year"),
-  };
-
-  let { error: fileError } = await databaseClient.from("files").insert(filePayload);
-
-  if (
-    fileError &&
-    (fileError.message.toLowerCase().includes("visibility") ||
-      fileError.message.toLowerCase().includes("grade_label") ||
-      fileError.message.toLowerCase().includes("file_size_bytes"))
-  ) {
-    const fallbackPayload = {
-      uploaded_by: filePayload.uploaded_by,
-      institution_id: filePayload.institution_id,
-      course_id: filePayload.course_id,
-      student_id: filePayload.student_id,
-      title: filePayload.title,
-      storage_path: filePayload.storage_path,
-      kind: filePayload.kind,
-      scope: filePayload.scope,
-      subject: filePayload.subject,
-      file_size_label: filePayload.file_size_label,
-      school_year: filePayload.school_year,
-    };
-    const fallbackInsert = await databaseClient.from("files").insert(fallbackPayload);
-    fileError = fallbackInsert.error;
-  }
-
-  if (fileError) {
-    throw fileError;
-  }
-
-  revalidatePath("/dashboard");
   revalidatePath("/library");
-  revalidatePath("/upload");
+  revalidatePath(`/students/${student.id}`);
+  revalidatePath("/portal/archivos");
 
-  if (studentId) {
-    revalidatePath(`/students/${studentId}`);
-  }
-
-  redirect("/library");
+  redirect(
+    `/library?shared=${encodeURIComponent(`${student.first_name} ${student.last_name}`)}`,
+  );
 }
 
 export async function upsertScheduleEventAction(formData: FormData) {

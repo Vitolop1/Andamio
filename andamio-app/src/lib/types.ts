@@ -109,6 +109,7 @@ export interface LibraryFile {
   sizeBytes?: number;
   uploadedAt: string;
   uploadedBy: string;
+  downloadUrl?: string;
 }
 
 export interface ScheduleEvent {

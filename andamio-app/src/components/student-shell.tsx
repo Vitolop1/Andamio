@@ -20,7 +20,7 @@ const studentNavigation = [
   },
   {
     href: "/portal/archivos",
-    label: "Archivos",
+    label: "Biblioteca",
     icon: FileStack,
   },
 ];

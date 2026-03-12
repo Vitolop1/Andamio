@@ -98,7 +98,7 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
           className="input-field"
           defaultValue=""
           name="email"
-          placeholder="emimaidanacornejo@gmail.com"
+          placeholder="Tu mail aca"
           type="email"
         />
       </label>
@@ -117,16 +117,22 @@ export function LoginForm({ authEnabled }: LoginFormProps) {
 
       <button
         className="primary-button w-full text-base disabled:cursor-not-allowed disabled:opacity-70"
-        disabled={isPending}
+        disabled={isPending || !authEnabled}
         type="submit"
       >
-        {authEnabled ? (isPending ? "Entrando..." : "Entrar al panel") : "Abrir demo"}
+        {isPending ? "Entrando..." : "Entrar al panel"}
         <ArrowRight className="h-4 w-4" />
       </button>
 
       {errorMessage ? (
         <p className="rounded-[22px] bg-[rgba(227,170,157,0.2)] px-5 py-4 text-base text-[var(--warm-strong)]">
           {errorMessage}
+        </p>
+      ) : null}
+
+      {!authEnabled ? (
+        <p className="rounded-[22px] bg-[rgba(227,170,157,0.2)] px-5 py-4 text-base text-[var(--warm-strong)]">
+          La configuracion de acceso todavia no esta completa.
         </p>
       ) : null}
     </form>

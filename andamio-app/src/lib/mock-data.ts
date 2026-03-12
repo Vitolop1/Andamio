@@ -221,7 +221,7 @@ export const students: Student[] = [
     nextSession: "2026-03-12T15:00:00",
     pendingTasks: 2,
     assignedProfessionalIds: ["11111111-1111-1111-1111-111111111112"],
-    portalEmail: "juana.rivera.444444@alumnos.andamio.app",
+    portalEmail: "juana.r444444@andamiosaltas.com",
     portalInitialPassword: "Juana2026",
     notes:
       "Necesita sostener la secuencia de lectura diaria y seguimiento de produccion escrita.",
@@ -240,7 +240,7 @@ export const students: Student[] = [
     nextSession: "2026-03-13T17:30:00",
     pendingTasks: 0,
     assignedProfessionalIds: ["11111111-1111-1111-1111-111111111112"],
-    portalEmail: "mateo.campos.444444@alumnos.andamio.app",
+    portalEmail: "mateo.c444444@andamiosaltas.com",
     portalInitialPassword: "Mateo2026",
     notes:
       "Viene sosteniendo muy bien la planificacion semanal y la entrega de tareas en tiempo.",
@@ -259,7 +259,7 @@ export const students: Student[] = [
     nextSession: "2026-03-14T10:00:00",
     pendingTasks: 1,
     assignedProfessionalIds: ["11111111-1111-1111-1111-111111111111"],
-    portalEmail: "pilar.soria.444444@alumnos.andamio.app",
+    portalEmail: "pilar.s444444@andamiosaltas.com",
     portalInitialPassword: "Pilar2026",
     notes:
       "Ingreso reciente. Falta cargar observacion inicial completa y material para casa.",
@@ -278,7 +278,7 @@ export const students: Student[] = [
     nextSession: "2026-03-12T18:15:00",
     pendingTasks: 3,
     assignedProfessionalIds: ["11111111-1111-1111-1111-111111111113"],
-    portalEmail: "santino.diaz.444444@alumnos.andamio.app",
+    portalEmail: "santino.d444444@andamiosaltas.com",
     portalInitialPassword: "Santino2026",
     notes:
       "Le cuesta sostener la entrega digital; conviene reforzar consignas claras y checklist.",

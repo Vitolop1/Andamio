@@ -5,7 +5,7 @@ import { loadStudentPortalData } from "@/lib/student-portal-data";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = {
-  title: "Archivos",
+  title: "Biblioteca",
 };
 
 export default async function StudentFilesPage() {
@@ -13,7 +13,7 @@ export default async function StudentFilesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Portal alumno" title="Archivos" />
+      <PageHeader eyebrow="Portal alumno" title="Biblioteca" />
 
       <SectionCard eyebrow="Material" title="Archivos asignados">
         <div className="space-y-3">
@@ -29,7 +29,7 @@ export default async function StudentFilesPage() {
                       {file.title}
                     </p>
                     <p className="mt-2 text-sm muted-copy">
-                      {file.subject} · {file.kind} · {file.sizeLabel}
+                      {file.subject} - {file.kind} - {file.sizeLabel}
                     </p>
                     <p className="mt-2 text-sm muted-copy">
                       {formatDate(file.uploadedAt, {
@@ -42,7 +42,7 @@ export default async function StudentFilesPage() {
                     <StatusBadge tone="neutral">{file.scope}</StatusBadge>
                     <a
                       className="secondary-button text-sm"
-                      href={`/api/files/${file.id}`}
+                      href={file.downloadUrl ?? `/api/files/${file.id}`}
                       rel="noreferrer"
                       target="_blank"
                     >

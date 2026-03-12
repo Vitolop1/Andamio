@@ -45,7 +45,8 @@ function slugify(value) {
 function buildPortalEmail(firstName, lastName, studentId) {
   const first = slugify(firstName) || "alumno";
   const last = slugify(lastName) || "andamio";
-  return `${first}.${last}.${studentId.slice(0, 6)}@alumnos.andamio.app`;
+  const lastInitial = last[0] || "a";
+  return `${first}.${lastInitial}${studentId.slice(0, 6)}@andamiosaltas.com`;
 }
 
 function buildPortalPassword(firstName) {

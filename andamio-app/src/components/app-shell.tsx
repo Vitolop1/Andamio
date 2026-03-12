@@ -125,7 +125,7 @@ export function AppShell({
           </Link>
           <div className="rounded-[22px] border border-[rgba(76,63,97,0.08)] bg-white/82 px-4 py-3">
             <p className="text-sm text-[var(--muted)]">
-              {dataSource === "supabase" ? "Supabase conectado" : "Modo demo activo"}
+              {dataSource === "supabase" ? "Plataforma conectada" : "Conexion de respaldo"}
             </p>
             <p className="mt-1 text-sm text-[var(--muted)]">
               {studentCount} alumnos y {sessionsToday} horarios hoy

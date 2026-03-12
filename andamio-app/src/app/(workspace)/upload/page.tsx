@@ -34,7 +34,7 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
       return params.scope as FileScope;
     }
 
-    return "Curso" as FileScope;
+    return "Institucion" as FileScope;
   })();
 
   return (

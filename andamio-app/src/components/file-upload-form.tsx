@@ -19,12 +19,25 @@ interface FileUploadFormProps {
   defaultGradeLabel?: string;
 }
 
+const kindOptions = [
+  { value: "Material", label: "Material" },
+  { value: "Informe", label: "Informe" },
+  { value: "Evaluacion", label: "Evaluacion" },
+  { value: "Actividad", label: "Actividad" },
+  { value: "Planilla", label: "Planilla" },
+  { value: "Actividad", label: "Tarea" },
+  { value: "Material", label: "Recurso" },
+  { value: "Material", label: "Juego" },
+  { value: "Material", label: "Video" },
+  { value: "Evaluacion", label: "Diagnostico" },
+] as const;
+
 export function FileUploadForm({
   institutions,
   courses,
   students,
   disableUploads = false,
-  defaultScope = "Curso",
+  defaultScope = "Institucion",
   defaultInstitutionId = "",
   defaultCourseId = "",
   defaultStudentId = "",
@@ -75,7 +88,7 @@ export function FileUploadForm({
           </div>
         ) : (
           <div className="rounded-[24px] bg-[rgba(146,124,183,0.12)] px-5 py-4 text-base text-[var(--foreground)] lg:col-span-2">
-            Elegi un archivo.
+            Elegi un archivo y despues completá solo lo que te sirva.
           </div>
         )}
       </div>
@@ -88,8 +101,7 @@ export function FileUploadForm({
               <input
                 className="input-field"
                 name="title"
-                placeholder="Ej: cuadernillo de lectura 1er grado"
-                required
+                placeholder="Se completa solo si lo dejas vacio"
                 type="text"
               />
             </label>
@@ -97,11 +109,11 @@ export function FileUploadForm({
             <label className="block">
               <span className="form-label">Tipo de archivo</span>
               <select className="input-field" defaultValue="Material" name="kind">
-                <option value="Material">Material</option>
-                <option value="Informe">Informe</option>
-                <option value="Evaluacion">Evaluacion</option>
-                <option value="Actividad">Actividad</option>
-                <option value="Planilla">Planilla</option>
+                {kindOptions.map((kind, index) => (
+                  <option key={`${kind.value}-${index}`} value={kind.value}>
+                    {kind.label}
+                  </option>
+                ))}
               </select>
             </label>
 
@@ -114,7 +126,7 @@ export function FileUploadForm({
             </label>
 
             <label className="block">
-              <span className="form-label">Destino</span>
+              <span className="form-label">Destino principal</span>
               <select
                 className="input-field"
                 name="scope"
@@ -133,9 +145,9 @@ export function FileUploadForm({
                 }}
                 value={scope}
               >
-                <option value="Curso">Grado o {SECTION_LABEL.toLowerCase()} compartida</option>
+                <option value="Institucion">General o colegio completo</option>
+                <option value="Curso">Grado o {SECTION_LABEL.toLowerCase()}</option>
                 <option value="Alumno">Alumno puntual</option>
-                <option value="Institucion">Todo el colegio / institucion</option>
               </select>
             </label>
 
@@ -206,10 +218,9 @@ export function FileUploadForm({
                   className="input-field"
                   name="student_id"
                   onChange={(event) => setStudentId(event.target.value)}
-                  required
                   value={studentId}
                 >
-                  <option value="">Seleccionar alumno</option>
+                  <option value="">Sin alumno puntual</option>
                   {filteredStudents.map((student) => (
                     <option key={student.id} value={student.id}>
                       {student.firstName} {student.lastName}

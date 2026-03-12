@@ -11,11 +11,10 @@ export function getSectionNameLabel(name?: string | null) {
 export function getFileScopeLabel(scope: FileScope) {
   switch (scope) {
     case "Curso":
-      return "Grado / seccion";
+      return "Grado / seccion / taller";
     case "Institucion":
-      return "Institucion";
+      return "General / institucion";
     default:
       return "Alumno";
   }
 }
-

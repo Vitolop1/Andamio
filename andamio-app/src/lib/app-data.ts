@@ -14,6 +14,7 @@ import {
   hasSupabaseServiceRole,
   isDemoBypassEnabled,
 } from "@/lib/env";
+import { loadSignedFileUrlMap } from "@/lib/file-download";
 import { inferGradeLabel } from "@/lib/grades";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -558,6 +559,12 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
 
       return file.uploaded_by === currentProfessional.id;
     });
+    const signedFileUrlMap = await loadSignedFileUrlMap(
+      visibleFileRows.map((file) => ({
+        id: file.id,
+        storagePath: file.storage_path,
+      })),
+    );
 
     const libraryFiles: LibraryFile[] = visibleFileRows.map((file) => ({
       id: file.id,
@@ -583,6 +590,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       uploadedBy:
         (file.uploaded_by ? profileMap.get(file.uploaded_by)?.full_name : null) ??
         currentProfessional.name,
+      downloadUrl: signedFileUrlMap.get(file.id) ?? undefined,
     }));
 
     const scheduleEvents: ScheduleEvent[] = scheduleRows.map((event) => ({
@@ -614,7 +622,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
       scheduleEvents,
     };
   } catch (error) {
-    console.error("No se pudo cargar Supabase. Se usa modo demo.", error);
+    console.error("No se pudo cargar Supabase. Se usa respaldo local.", error);
     return getMockBundle();
   }
 });

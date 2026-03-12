@@ -42,7 +42,27 @@ export async function resolveUserRole(
     .eq("email", user.email)
     .maybeSingle<{ role: Role }>();
 
-  return profileByEmail?.role ?? null;
+  if (profileByEmail?.role) {
+    return profileByEmail.role;
+  }
+
+  const { data: studentAccountByProfile } = await supabase
+    .from("student_portal_accounts")
+    .select("profile_id")
+    .eq("profile_id", user.id)
+    .maybeSingle<{ profile_id: string }>();
+
+  if (studentAccountByProfile?.profile_id) {
+    return "alumno";
+  }
+
+  const { data: studentAccountByEmail } = await supabase
+    .from("student_portal_accounts")
+    .select("email")
+    .eq("email", user.email)
+    .maybeSingle<{ email: string }>();
+
+  return studentAccountByEmail?.email ? "alumno" : null;
 }
 
 export function getHomePathForRole(role: Role | null) {
