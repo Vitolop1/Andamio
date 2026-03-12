@@ -1,0 +1,16 @@
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "http://localhost:3000",
+          "https://andamio-salta.vercel.app"
+        ],
+        "methods": ["GET", "PUT", "HEAD"]
+      },
+      "allowedHeaders": ["Content-Type"],
+      "exposeHeaders": ["ETag"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}
