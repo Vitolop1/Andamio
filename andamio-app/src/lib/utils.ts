@@ -24,6 +24,34 @@ export function formatLongDate(value: string) {
   }).format(new Date(value));
 }
 
+export function addDays(value: Date, amount: number) {
+  const next = new Date(value);
+  next.setDate(next.getDate() + amount);
+  return next;
+}
+
+export function formatIsoDate(value: Date) {
+  const year = value.getFullYear();
+  const month = `${value.getMonth() + 1}`.padStart(2, "0");
+  const day = `${value.getDate()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export function startOfWeekMonday(value: Date) {
+  const date = new Date(value);
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  date.setDate(date.getDate() + diff);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+export function toTimeMinutes(value: string) {
+  const [hours, minutes] = value.split(":").map((chunk) => Number(chunk));
+  return hours * 60 + minutes;
+}
+
 export function initialsFromName(value: string) {
   return value
     .split(" ")

@@ -37,11 +37,11 @@ export function AppShell({
         >
           <Image
             alt="Andamio"
-            className="h-auto w-[170px]"
-            height={92}
+            className="h-auto w-[220px] sm:w-[250px]"
+            height={120}
             priority
             src="/andamiologo.png"
-            width={170}
+            width={250}
           />
           <p className="mt-3 text-sm text-[var(--muted)]">Volver al inicio</p>
         </Link>
@@ -147,10 +147,10 @@ export function AppShell({
             <Link className="rounded-[22px] bg-white/84 px-5 py-3" href="/">
               <Image
                 alt="Andamio"
-                className="h-auto w-[150px]"
-                height={70}
+                className="h-auto w-[210px] sm:w-[240px]"
+                height={96}
                 src="/andamiologo.png"
-                width={150}
+                width={240}
               />
             </Link>
           </div>
