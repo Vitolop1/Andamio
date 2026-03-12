@@ -81,6 +81,7 @@ Eso actualiza perfiles y usuarios Auth para:
 - `emimaidanacornejo@gmail.com`
 - `rosario@andamio.app`
 - `agustina@andamio.app`
+- `admin@andamio.app`
 
 ## Estructura util
 

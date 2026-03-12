@@ -76,6 +76,14 @@ const accounts = [
     role: "profesional",
     password: "Agustina2026",
   },
+  {
+    profileId: "11111111-1111-1111-1111-111111111114",
+    legacyEmails: ["admin@andamio.app"],
+    email: "admin@andamio.app",
+    fullName: "Admin Andamio",
+    role: "admin",
+    password: "Admin2026",
+  },
 ];
 
 const { data: authUsersData, error: authUsersError } =
