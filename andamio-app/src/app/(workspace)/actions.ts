@@ -88,6 +88,29 @@ function normalizeTimeForDatabase(value: string) {
   return value.length === 5 ? `${value}:00` : value;
 }
 
+function buildScheduleRedirectPath(options: {
+  view: string | null;
+  week: string | null;
+  month: string | null;
+  date: string | null;
+}) {
+  const params = new URLSearchParams();
+  const view = options.view === "month" ? "month" : "week";
+  params.set("view", view);
+
+  if (view === "month") {
+    params.set("month", options.month ?? options.date ?? new Date().toISOString().slice(0, 10));
+  } else if (options.week) {
+    params.set("week", options.week);
+  }
+
+  if (options.date) {
+    params.set("date", options.date);
+  }
+
+  return `/schedule?${params.toString()}`;
+}
+
 async function ensureStorageBucket() {
   if (!hasSupabaseServiceRole) {
     return;
@@ -468,7 +491,9 @@ export async function createLibraryFileAction(formData: FormData) {
 export async function upsertScheduleEventAction(formData: FormData) {
   const { supabase, actor } = await resolveActorProfile();
   const eventId = optionalString(formData, "event_id");
+  const view = optionalString(formData, "view");
   const week = optionalString(formData, "week");
+  const month = optionalString(formData, "month");
   const professionalId = optionalString(formData, "professional_id") ?? actor.id;
   const date = requiredString(formData, "date");
   const startTime = requiredString(formData, "start_time");
@@ -482,6 +507,12 @@ export async function upsertScheduleEventAction(formData: FormData) {
   }
 
   const redirectWeek = week ?? date;
+  const redirectPath = buildScheduleRedirectPath({
+    view,
+    week: redirectWeek,
+    month,
+    date,
+  });
 
   if (eventId) {
     const studentId = optionalString(formData, "student_id");
@@ -527,7 +558,7 @@ export async function upsertScheduleEventAction(formData: FormData) {
       revalidatePath(`/students/${studentId}`);
     }
 
-    redirect(`/schedule?week=${redirectWeek}`);
+    redirect(redirectPath);
   }
 
   const studentIds = multipleStrings(formData, "student_ids");
@@ -554,7 +585,7 @@ export async function upsertScheduleEventAction(formData: FormData) {
 
     revalidatePath("/dashboard");
     revalidatePath("/schedule");
-    redirect(`/schedule?week=${redirectWeek}`);
+    redirect(redirectPath);
   }
 
   const { data: students, error: studentsError } = await supabase
@@ -599,14 +630,17 @@ export async function upsertScheduleEventAction(formData: FormData) {
     revalidatePath(`/students/${studentId}`);
   }
 
-  redirect(`/schedule?week=${redirectWeek}`);
+  redirect(redirectPath);
 }
 
 export async function deleteScheduleEventAction(formData: FormData) {
   const { supabase } = await resolveActorProfile();
   const eventId = requiredString(formData, "event_id");
   const studentId = optionalString(formData, "student_id");
+  const view = optionalString(formData, "view");
   const week = optionalString(formData, "week");
+  const month = optionalString(formData, "month");
+  const date = optionalString(formData, "date");
 
   const { error } = await supabase.from("schedule_events").delete().eq("id", eventId);
 
@@ -622,5 +656,12 @@ export async function deleteScheduleEventAction(formData: FormData) {
     revalidatePath(`/students/${studentId}`);
   }
 
-  redirect(week ? `/schedule?week=${week}` : "/schedule");
+  redirect(
+    buildScheduleRedirectPath({
+      view,
+      week,
+      month,
+      date,
+    }),
+  );
 }

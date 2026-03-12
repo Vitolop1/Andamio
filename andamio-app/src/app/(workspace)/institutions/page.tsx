@@ -15,13 +15,11 @@ export default async function InstitutionsPage() {
       <PageHeader
         actionHref="/institutions/new"
         actionLabel="Agregar colegio"
-        description="Las instituciones quedan mucho mas claras en formato lista: ves rapido quien lleva cada colegio, cuantos cursos tiene y cuantos archivos ya se cargaron."
         eyebrow="Base institucional"
-        title="Colegios y consultorios"
+        title="Colegios"
       />
 
       <SectionCard
-        description="Esta vista esta pensada para que scrollees una sola lista y ubiques al toque donde falta cargar alumnos, cursos o archivos."
         eyebrow="Lista general"
         title="Instituciones activas"
       >

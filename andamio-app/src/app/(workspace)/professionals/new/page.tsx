@@ -13,13 +13,11 @@ export default function NewProfessionalPage() {
       <PageHeader
         eyebrow="Alta de equipo"
         title="Agregar maestra o profesional"
-        description="Este formulario crea un acceso real en Supabase Auth y un perfil interno para usar Andamio."
       />
 
       <SectionCard
         eyebrow="Formulario"
         title="Nuevo acceso"
-        description="Usa una password temporal fuerte. Despues podemos sumar recuperacion de password."
       >
         {!hasSupabaseServiceRole ? (
           <div className="rounded-[26px] bg-[rgba(227,170,157,0.22)] p-5 text-base text-[var(--warm-strong)]">

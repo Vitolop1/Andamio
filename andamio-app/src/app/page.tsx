@@ -22,12 +22,8 @@ export default async function Home() {
           />
           <p className="eyebrow mt-8">Plataforma privada</p>
           <h1 className="display-font mt-4 max-w-4xl text-5xl font-semibold leading-tight text-[var(--foreground)] sm:text-7xl">
-            Todo Andamio mas claro, mas simple y mas ordenado.
+            Andamio
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 muted-copy">
-            Colegios, alumnos, horarios y materiales en una app pensada para
-            usar rapido todos los dias.
-          </p>
         </div>
 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -58,7 +54,7 @@ export default async function Home() {
               <LockKeyhole className="h-5 w-5" />
             </div>
             <p className="mt-3 text-base font-semibold text-[var(--foreground)]">
-              acceso privado y simple
+              acceso privado
             </p>
           </article>
         </div>

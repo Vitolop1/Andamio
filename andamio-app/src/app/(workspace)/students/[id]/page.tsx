@@ -47,7 +47,6 @@ export default async function StudentDetailPage({
       <PageHeader
         actionHref={`/upload?scope=Alumno&studentId=${student.id}&institutionId=${student.institutionId}&courseId=${student.courseId}`}
         actionLabel="Subir material"
-        description="La ficha reune contexto, agenda, archivos y evaluaciones en una sola pantalla para que el seguimiento no dependa de memoria o chats viejos."
         eyebrow={`${institution?.name ?? "Institucion"} - ${course?.name ?? "Sin curso"}`}
         title={`${student.firstName} ${student.lastName}`}
       />
@@ -79,7 +78,6 @@ export default async function StudentDetailPage({
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
         <SectionCard
-          description="La parte que mas ayuda en el dia a dia: entender rapido que esta pasando con este alumno."
           eyebrow="Resumen"
           title="Ficha actual"
         >
@@ -127,7 +125,6 @@ export default async function StudentDetailPage({
         </SectionCard>
 
         <SectionCard
-          description="La agenda asociada al alumno deberia quedar siempre al alcance de la mano."
           eyebrow="Proximos encuentros"
           title="Agenda vinculada"
         >
@@ -167,7 +164,6 @@ export default async function StudentDetailPage({
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr]">
         <SectionCard
-          description="Evaluaciones, observaciones e hitos deberian contar una historia clara del proceso."
           eyebrow="Historial"
           title="Evaluaciones y seguimiento"
         >
@@ -200,7 +196,6 @@ export default async function StudentDetailPage({
         </SectionCard>
 
         <SectionCard
-          description="Todo archivo asociado deberia quedar disponible sin tener que recordar donde se guardo."
           eyebrow="Biblioteca personal"
           title="Archivos vinculados"
         >

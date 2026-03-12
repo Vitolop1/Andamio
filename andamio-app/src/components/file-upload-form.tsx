@@ -46,9 +46,7 @@ export function FileUploadForm({
   if (!institutions.length) {
     return (
       <div className="rounded-[26px] bg-[rgba(227,170,157,0.22)] p-6 text-base leading-7 text-[var(--foreground)]">
-        No hay colegios cargados todavia. Si estas usando Supabase real, corre
-        `supabase/seed.sql` para cargar las instituciones base y despues volve a
-        esta pantalla.
+        No hay colegios cargados.
       </div>
     );
   }
@@ -73,8 +71,7 @@ export function FileUploadForm({
           </div>
         ) : (
           <div className="rounded-[24px] bg-[rgba(146,124,183,0.12)] px-5 py-4 text-base text-[var(--foreground)] lg:col-span-2">
-            Elegi primero el archivo y despues completa si va a un alumno, a un
-            grado, a un colegio o si queda como material general.
+            Elegi un archivo.
           </div>
         )}
       </div>
@@ -238,14 +235,6 @@ export function FileUploadForm({
                 type="text"
               />
             </label>
-          </div>
-
-          <div className="rounded-[26px] bg-[rgba(227,170,157,0.18)] p-5 text-base leading-7 text-[var(--foreground)]">
-            {scope === "Curso"
-              ? "Podes dejar un curso puntual o solo marcar un grado compartido. Si no elegis colegio, el archivo queda como material general para ese grado."
-              : scope === "Alumno"
-                ? "Si elegis un alumno, el archivo queda directamente en su ficha y toma el colegio y curso desde ese alumno."
-                : "Si elegis institucion, el archivo queda para ese colegio. Si lo dejas sin colegio, queda como material general de Andamio."}
           </div>
 
           <button className="primary-button text-base" type="submit">

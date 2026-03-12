@@ -15,13 +15,11 @@ export default async function NewStudentPage() {
       <PageHeader
         eyebrow="Alta de alumno"
         title="Agregar alumno"
-        description="Carga una ficha inicial y vincula al alumno con colegio, curso y profesional desde el primer momento."
       />
 
       <SectionCard
         eyebrow="Formulario"
         title="Ficha inicial"
-        description="No hace falta completar todo perfecto el dia uno, pero si dejar bien la base."
       >
         <form action={createStudentAction} className="grid gap-5 lg:grid-cols-2">
           <label className="block">

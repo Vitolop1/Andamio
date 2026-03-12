@@ -3,7 +3,7 @@ import Link from "next/link";
 interface PageHeaderProps {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   actionHref?: string;
   actionLabel?: string;
 }
@@ -22,9 +22,11 @@ export function PageHeader({
         <h1 className="display-font mt-3 text-5xl font-semibold tracking-tight text-[var(--foreground)] sm:text-6xl">
           {title}
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 muted-copy">
-          {description}
-        </p>
+        {description ? (
+          <p className="mt-5 max-w-2xl text-lg leading-8 muted-copy">
+            {description}
+          </p>
+        ) : null}
       </div>
       {actionHref && actionLabel ? (
         <Link className="primary-button text-base" href={actionHref}>

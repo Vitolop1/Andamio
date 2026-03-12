@@ -12,13 +12,11 @@ export default function NewInstitutionPage() {
       <PageHeader
         eyebrow="Alta institucional"
         title="Agregar colegio"
-        description="Carga un colegio o institucion nueva para despues colgar cursos, alumnos y archivos en el lugar correcto."
       />
 
       <SectionCard
         eyebrow="Formulario"
-        title="Nuevo colegio o institucion"
-        description="Lo minimo para arrancar es nombre, ciudad y referente."
+        title="Nuevo colegio"
       >
         <form action={createInstitutionAction} className="grid gap-5 lg:grid-cols-2">
           <label className="block lg:col-span-2">

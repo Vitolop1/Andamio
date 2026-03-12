@@ -14,13 +14,11 @@ export default async function CoursesPage() {
       <PageHeader
         actionHref="/students"
         actionLabel="Abrir alumnos"
-        description="Los cursos terminan de estructurar el mapa de trabajo. Desde aca deberian quedar claros los grupos, el ano lectivo y las areas que mas se trabajan."
         eyebrow="Organizacion academica"
-        title="Cursos y grupos"
+        title="Cursos"
       />
 
       <SectionCard
-        description="Esta vista mezcla contexto academico con necesidades de seguimiento para que las profesionales sepan rapido donde esta cada alumno."
         eyebrow="Vista general"
         title="Cursos activos"
       >

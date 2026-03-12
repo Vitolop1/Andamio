@@ -39,13 +39,11 @@ export default async function UploadPage({ searchParams }: UploadPageProps) {
       <PageHeader
         eyebrow="Carga simple"
         title="Subir archivo"
-        description="Primero elegis el archivo. Despues lo clasificas por colegio, curso o alumno para que todo quede ordenado desde el principio."
       />
 
       <SectionCard
         eyebrow="Paso a paso"
         title="Carga guiada"
-        description="Si el material es para todo un grado, marcas el curso y ya queda ordenado para ese grupo completo."
       >
         <FileUploadForm
           courses={data.courses}

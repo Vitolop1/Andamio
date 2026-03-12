@@ -114,11 +114,6 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
       <PageHeader
         actionHref="/students/new"
         actionLabel="Agregar alumno"
-        description={
-          data.currentProfessional.role === "admin"
-            ? "Vista general para repartir seguimiento, entrar rapido a cada ficha y detectar que chicos necesitan movimiento esta semana."
-            : "Tus alumnos quedan juntos en un explorador simple para entrar directo a informe semanal, archivos y tareas sin navegar diez pantallas."
-        }
         eyebrow="Seguimiento individual"
         title={data.currentProfessional.role === "admin" ? "Todos los alumnos" : "Mis alumnos"}
       />
@@ -157,7 +152,6 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
         <SectionCard
           eyebrow="Explorador"
           title={data.currentProfessional.role === "admin" ? "Listado general" : "Tu lista"}
-          description="Pensado como una columna fija: elegis un alumno y a la derecha ves lo importante."
         >
           <form className="mb-4" method="get">
             <input
@@ -293,7 +287,6 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
               <SectionCard
                 eyebrow="Informe semanal"
                 title="Resumen rapido"
-                description="Tres lecturas cortas para entrar en contexto antes de atender."
               >
                 <div className="space-y-3">
                   <article className="rounded-[24px] bg-[rgba(255,255,255,0.85)] p-5">
@@ -341,7 +334,6 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
               <SectionCard
                 eyebrow="Archivos"
                 title="Biblioteca del alumno"
-                description="Todo lo que le subiste a este alumno queda reunido aca."
               >
                 <div className="space-y-3">
                   {selectedFiles.length ? (
@@ -383,7 +375,6 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
               <SectionCard
                 eyebrow="Tareas"
                 title="Pendientes y practica"
-                description="Aca quedan juntas las tareas directas y las del curso."
               >
                 <div className="space-y-3">
                   {selectedAssignments.length ? (
@@ -424,7 +415,6 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
           <SectionCard
             eyebrow="Sin alumnos"
             title="Todavia no hay nada para mostrar"
-            description="Cuando cargues o asignes alumnos a este perfil, van a aparecer aca."
           >
             <div className="rounded-[24px] border border-dashed border-[rgba(76,63,97,0.14)] bg-white/70 px-5 py-8 text-base muted-copy">
               Si queres, el siguiente paso es cargar alumnos reales y repartirlos por profesional.

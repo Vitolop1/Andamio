@@ -10,34 +10,30 @@ import { LibrarySearchPanel } from "@/components/library-search-panel";
 import { SectionCard } from "@/components/section-card";
 import { StatusBadge } from "@/components/status-badge";
 import { loadAppData } from "@/lib/app-data";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatIsoDate } from "@/lib/utils";
 
 const quickActions = [
   {
     href: "/upload",
     label: "Subir archivo",
-    description: "Cargar un material y etiquetarlo por colegio, grado, curso o alumno.",
     icon: FileUp,
     toneClass: "bg-[rgba(188,203,79,0.2)] text-[var(--accent-strong)]",
   },
   {
     href: "/students/new",
     label: "Agregar alumno",
-    description: "Crear una ficha nueva y dejar el seguimiento ordenado desde el inicio.",
     icon: GraduationCap,
     toneClass: "bg-[rgba(146,124,183,0.14)] text-[var(--primary-strong)]",
   },
   {
     href: "/institutions/new",
     label: "Agregar colegio",
-    description: "Sumar una institucion nueva para clasificar alumnos y materiales.",
     icon: Building2,
     toneClass: "bg-[rgba(227,170,157,0.22)] text-[var(--warm-strong)]",
   },
   {
     href: "/schedule",
     label: "Ver horarios",
-    description: "Abrir la agenda semanal y revisar que toca hoy.",
     icon: CalendarRange,
     toneClass: "bg-[rgba(146,124,183,0.14)] text-[var(--primary-strong)]",
   },
@@ -45,8 +41,9 @@ const quickActions = [
 
 export default async function DashboardPage() {
   const data = await loadAppData();
+  const todayIso = formatIsoDate(new Date());
   const sessionsToday = data.scheduleEvents
-    .filter((event) => event.date === "2026-03-12")
+    .filter((event) => event.date === todayIso)
     .slice(0, 4);
   const recentFiles = data.libraryFiles.slice(0, 3);
 
@@ -65,12 +62,8 @@ export default async function DashboardPage() {
         </Link>
         <p className="eyebrow mt-6">Dashboard principal</p>
         <h1 className="display-font mt-4 text-5xl font-semibold text-[var(--foreground)] sm:text-6xl">
-          Lo importante, al toque.
+          Inicio
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 muted-copy">
-          Este panel queda pensado para las acciones que mas vas a usar todos los
-          dias, sin ruido de mas.
-        </p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -91,9 +84,6 @@ export default async function DashboardPage() {
               <h2 className="mt-5 text-2xl font-semibold text-[var(--foreground)]">
                 {action.label}
               </h2>
-              <p className="mt-3 text-base leading-7 muted-copy">
-                {action.description}
-              </p>
             </Link>
           );
         })}
@@ -102,7 +92,6 @@ export default async function DashboardPage() {
       <SectionCard
         eyebrow="Busqueda de archivos"
         title="Encontrar material rapido"
-        description="Busca por colegio, grado, curso puntual, materia, tipo o nombre de archivo desde el dashboard."
       >
         <LibrarySearchPanel
           action="/library"
@@ -116,7 +105,6 @@ export default async function DashboardPage() {
         <SectionCard
           eyebrow="Hoy"
           title="Horarios de hoy"
-          description="Una vista corta para entrar y saber rapido que sigue."
           action={
             <Link className="secondary-button text-base" href="/schedule">
               Ver agenda completa
@@ -165,7 +153,6 @@ export default async function DashboardPage() {
         <SectionCard
           eyebrow="Accesos"
           title="Administracion rapida"
-          description="Desde aca el admin puede crear nuevos accesos y abrir areas clave."
         >
           <div className="grid gap-3">
             <Link
@@ -202,7 +189,6 @@ export default async function DashboardPage() {
       <SectionCard
         eyebrow="Biblioteca"
         title="Ultimos archivos"
-        description="Los materiales recientes quedan a mano para seguir el trabajo sin perder contexto."
         action={
           <Link className="primary-button text-base" href="/upload">
             Subir archivo

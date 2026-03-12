@@ -16,7 +16,6 @@ export default async function ProfessionalsPage() {
       <PageHeader
         eyebrow="Equipo"
         title="Accesos del equipo"
-        description="Desde aca el administrador puede crear nuevas personas con acceso y ver quienes ya forman parte de Andamio."
         actionHref="/professionals/new"
         actionLabel="Agregar profesional"
       />
@@ -24,7 +23,6 @@ export default async function ProfessionalsPage() {
       <SectionCard
         eyebrow="Listado"
         title="Accesos activos"
-        description="Cada alta nueva crea el usuario en Supabase Auth y su perfil interno en la base."
       >
         <div className="grid gap-4 xl:grid-cols-2">
           {data.professionals.map((professional) => (
@@ -53,7 +51,6 @@ export default async function ProfessionalsPage() {
       <SectionCard
         eyebrow="Atajo"
         title="Altas rapidas"
-        description="Tambien podes abrir directamente las otras pantallas de carga del sistema."
       >
         <div className="grid gap-4 md:grid-cols-3">
           <Link

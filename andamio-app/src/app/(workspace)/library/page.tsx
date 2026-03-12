@@ -122,15 +122,13 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
       <PageHeader
         actionHref="/upload"
         actionLabel="Subir archivo"
-        description="Busca por colegio, grado, curso puntual, materia, nombre, tipo o visibilidad para encontrar cualquier archivo rapido."
         eyebrow="Archivos privados"
-        title="Biblioteca organizada"
+        title="Biblioteca"
       />
 
       <SectionCard
         eyebrow="Busqueda"
         title="Buscar archivos"
-        description="Esta es la parte mas importante del sistema para el dia a dia: encontrar todo en segundos."
       >
         <LibrarySearchPanel
           action="/library"
@@ -142,7 +140,6 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.2fr]">
         <SectionCard
-          description="Una vista rapida del resultado actual para saber si los filtros estan bien."
           eyebrow="Resumen"
           title={`${filteredFiles.length} archivo${filteredFiles.length === 1 ? "" : "s"} encontrado${filteredFiles.length === 1 ? "" : "s"}`}
         >
@@ -178,7 +175,6 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
         </SectionCard>
 
         <SectionCard
-          description="Cada archivo muestra a quien pertenece, de que tipo es y si es privado o compartido."
           eyebrow="Resultados"
           title="Archivos encontrados"
         >
