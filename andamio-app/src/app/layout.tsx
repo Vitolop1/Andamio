@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+import { getSupabaseEnv } from "@/lib/env";
+import { buildPublicRuntimeConfigScript } from "@/lib/public-runtime-config";
 import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
@@ -28,10 +30,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { url, anonKey } = getSupabaseEnv();
+  const publicRuntimeConfigScript = buildPublicRuntimeConfigScript({
+    supabaseUrl: url,
+    supabasePublishableKey: anonKey,
+  });
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          dangerouslySetInnerHTML={{ __html: publicRuntimeConfigScript }}
+        />
       </head>
       <body className={`${manrope.variable} ${fraunces.variable} antialiased`}>
         <div className="page-shell">{children}</div>
