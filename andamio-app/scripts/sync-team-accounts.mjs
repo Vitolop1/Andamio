@@ -62,8 +62,8 @@ const accounts = [
   },
   {
     profileId: "11111111-1111-1111-1111-111111111112",
-    legacyEmails: ["natalia@andamio.app", "rosario@andamio.app"],
-    email: "rosario@andamio.app",
+    legacyEmails: ["natalia@andamio.app", "rosario@andamio.app", "rochimaidanac@gmail.com"],
+    email: "rochimaidanac@gmail.com",
     fullName: "Prof. Rosario Maidana",
     role: "profesional",
     password: "Rosario2026",

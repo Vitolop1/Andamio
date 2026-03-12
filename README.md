@@ -34,7 +34,7 @@ Abrir:
 Despues de sincronizar usuarios, quedan estas cuentas base:
 
 - `emimaidanacornejo@gmail.com`
-- `rosario@andamio.app`
+- `rochimaidanac@gmail.com`
 - `agustina@andamio.app`
 - `admin@andamio.app`
 
