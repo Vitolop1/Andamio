@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { loadAppData } from "@/lib/app-data";
 import { NONE_FILTER_VALUE } from "@/lib/library-filters";
+import { getFileScopeLabel } from "@/lib/section-labels";
 import { normalizeForSearch } from "@/lib/utils";
 
 export const metadata = {
@@ -187,7 +188,7 @@ export default async function LibraryPage({ searchParams }: LibraryPageProps) {
                         {file.gradeLabel ? ` · ${file.gradeLabel}` : ""}
                         {student
                           ? ` · ${student.firstName} ${student.lastName}`
-                          : ` · ${file.scope}`}
+                          : ` · ${getFileScopeLabel(file.scope)}`}
                       </p>
                     </div>
 

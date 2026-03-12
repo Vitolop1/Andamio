@@ -4,6 +4,7 @@ import { MetricCard } from "@/components/metric-card";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { StatusBadge } from "@/components/status-badge";
+import { getSectionNameLabel } from "@/lib/section-labels";
 import { eventStatusMeta, formatDate, studentStatusMeta } from "@/lib/utils";
 
 interface StudentDetailPageProps {
@@ -47,7 +48,7 @@ export default async function StudentDetailPage({
       <PageHeader
         actionHref={`/upload?scope=Alumno&studentId=${student.id}&institutionId=${student.institutionId}&courseId=${student.courseId}`}
         actionLabel="Subir material"
-        eyebrow={`${institution?.name ?? "Institucion"} - ${course?.name ?? "Sin curso"}`}
+        eyebrow={`${institution?.name ?? "Institucion"} - ${getSectionNameLabel(course?.name)}`}
         title={`${student.firstName} ${student.lastName}`}
       />
 

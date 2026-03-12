@@ -171,7 +171,7 @@ export default async function DashboardPage() {
               className="rounded-[24px] border border-[rgba(76,63,97,0.08)] bg-white/82 p-5 text-base font-semibold text-[var(--foreground)] transition hover:bg-[rgba(146,124,183,0.08)]"
               href="/courses"
             >
-              Ver cursos y grados
+              Ver secciones y grados
             </Link>
             <div className="rounded-[24px] bg-[rgba(188,203,79,0.18)] p-5">
               <p className="text-base font-semibold text-[var(--foreground)]">

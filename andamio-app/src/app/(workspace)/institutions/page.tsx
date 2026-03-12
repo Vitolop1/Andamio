@@ -2,6 +2,7 @@ import Link from "next/link";
 import { loadAppData } from "@/lib/app-data";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
+import { SECTION_PLURAL_LABEL } from "@/lib/section-labels";
 
 export const metadata = {
   title: "Instituciones",
@@ -64,7 +65,7 @@ export default async function InstitutionsPage() {
                         <p className="text-3xl font-semibold text-[var(--foreground)]">
                           {institution.activeCourses}
                         </p>
-                        <p className="mt-1 text-base muted-copy">cursos</p>
+                        <p className="mt-1 text-base muted-copy">{SECTION_PLURAL_LABEL.toLowerCase()}</p>
                       </div>
                       <div className="rounded-[24px] bg-[rgba(227,170,157,0.18)] p-5">
                         <p className="text-3xl font-semibold text-[var(--foreground)]">
@@ -82,7 +83,7 @@ export default async function InstitutionsPage() {
 
                     <div className="mt-5">
                       <p className="text-base font-semibold text-[var(--foreground)]">
-                        Cursos cargados
+                        {SECTION_PLURAL_LABEL} cargadas
                       </p>
                       {relatedCourses.length ? (
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -97,7 +98,7 @@ export default async function InstitutionsPage() {
                         </div>
                       ) : (
                         <p className="mt-2 text-base muted-copy">
-                          Todavia no hay cursos cargados para este colegio.
+                          Todavia no hay {SECTION_PLURAL_LABEL.toLowerCase()} cargadas para este colegio.
                         </p>
                       )}
                     </div>

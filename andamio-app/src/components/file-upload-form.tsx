@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createLibraryFileAction } from "@/app/(workspace)/actions";
 import { schoolGrades } from "@/lib/grades";
+import { SECTION_LABEL } from "@/lib/section-labels";
 import { schoolSubjects } from "@/lib/subjects";
 import type { Course, FileScope, Institution, Student } from "@/lib/types";
 
@@ -132,7 +133,7 @@ export function FileUploadForm({
                 }}
                 value={scope}
               >
-                <option value="Curso">Curso o grado compartido</option>
+                <option value="Curso">Grado o {SECTION_LABEL.toLowerCase()} compartida</option>
                 <option value="Alumno">Alumno puntual</option>
                 <option value="Institucion">Todo el colegio / institucion</option>
               </select>
@@ -177,7 +178,7 @@ export function FileUploadForm({
 
             {scope !== "Institucion" ? (
               <label className="block">
-                <span className="form-label">Curso puntual</span>
+                <span className="form-label">{SECTION_LABEL}</span>
                 <select
                   className="input-field"
                   name="course_id"
@@ -187,7 +188,7 @@ export function FileUploadForm({
                   }}
                   value={courseId}
                 >
-                  <option value="">Sin curso puntual</option>
+                  <option value="">Sin {SECTION_LABEL.toLowerCase()}</option>
                   {courses.map((course) => (
                     <option key={course.id} value={course.id}>
                       {course.name} -{" "}

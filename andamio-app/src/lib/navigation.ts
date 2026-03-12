@@ -53,7 +53,7 @@ export const primaryNavigationItems: NavigationItem[] = [
 export const secondaryNavigationItems: NavigationItem[] = [
   {
     href: "/courses",
-    label: "Cursos",
+    label: "Secciones",
     icon: School,
   },
   {

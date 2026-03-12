@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { schoolGrades } from "@/lib/grades";
 import { NONE_FILTER_VALUE } from "@/lib/library-filters";
+import { SECTION_LABEL, getFileScopeLabel } from "@/lib/section-labels";
 import { schoolSubjects } from "@/lib/subjects";
 import type { Course, Institution } from "@/lib/types";
 
@@ -83,7 +84,7 @@ export function LibrarySearchPanel({
         </label>
 
         <label className="block">
-          <span className="form-label">Curso puntual</span>
+          <span className="form-label">{SECTION_LABEL}</span>
           <select
             className="input-field"
             name="courseId"
@@ -91,7 +92,7 @@ export function LibrarySearchPanel({
             value={courseId}
           >
             <option value="">Todos</option>
-            <option value={NONE_FILTER_VALUE}>Sin curso puntual</option>
+            <option value={NONE_FILTER_VALUE}>Sin {SECTION_LABEL.toLowerCase()}</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
                 {course.name} -{" "}
@@ -150,9 +151,9 @@ export function LibrarySearchPanel({
           <span className="form-label">Destino</span>
           <select className="input-field" defaultValue={values?.scope ?? ""} name="scope">
             <option value="">Todos</option>
-            <option value="Alumno">Alumno</option>
-            <option value="Curso">Curso o grado</option>
-            <option value="Institucion">Institucion</option>
+            <option value="Alumno">{getFileScopeLabel("Alumno")}</option>
+            <option value="Curso">{getFileScopeLabel("Curso")}</option>
+            <option value="Institucion">{getFileScopeLabel("Institucion")}</option>
           </select>
         </label>
 

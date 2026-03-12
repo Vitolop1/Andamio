@@ -157,7 +157,7 @@ export const loadStudentPortalData = cache(async (): Promise<StudentPortalBundle
       firstName: studentRow.first_name,
       lastName: studentRow.last_name,
       institutionName: institutionName ?? "Sin colegio",
-      courseName: courseName ?? "Sin curso",
+      courseName: courseName ?? "Sin seccion / taller",
       portalEmail: account.email,
     },
     evaluations,

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Andamio",
   },
   description:
-    "Plataforma privada para organizar instituciones, cursos, alumnos, archivos y seguimiento profesional.",
+    "Plataforma privada para organizar instituciones, secciones, alumnos, archivos y seguimiento profesional.",
 };
 
 export default function RootLayout({

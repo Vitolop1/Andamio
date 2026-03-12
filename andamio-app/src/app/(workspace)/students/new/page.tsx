@@ -2,6 +2,7 @@ import { createStudentAction } from "@/app/(workspace)/actions";
 import { loadAppData } from "@/lib/app-data";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
+import { SECTION_LABEL } from "@/lib/section-labels";
 
 export const metadata = {
   title: "Nuevo alumno",
@@ -81,12 +82,12 @@ export default async function NewStudentPage() {
           </label>
 
           <label className="block">
-            <span className="form-label">Curso</span>
+            <span className="form-label">{SECTION_LABEL}</span>
             <select
               className="input-field"
               name="course_id"
             >
-              <option value="">Sin curso por ahora</option>
+              <option value="">Sin {SECTION_LABEL.toLowerCase()} por ahora</option>
               {data.courses.map((course) => {
                 const institution = data.institutions.find(
                   (item) => item.id === course.institutionId,

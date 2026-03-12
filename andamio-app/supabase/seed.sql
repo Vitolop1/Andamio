@@ -37,10 +37,9 @@ set
 
 insert into public.courses (id, institution_id, name, school_year, level, shift, teacher_name)
 values
-  ('33333333-3333-3333-3333-333333333331', '22222222-2222-2222-2222-222222222222', '3ro A', '2026', 'Primaria', 'Manana', 'Soledad Cruz'),
-  ('33333333-3333-3333-3333-333333333332', '22222222-2222-2222-2222-222222222222', '5to B', '2026', 'Primaria', 'Tarde', 'Marina Flores'),
-  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lenguaje', '2026', 'Consultorio', 'Mixto', 'Emilia Maidana'),
-  ('33333333-3333-3333-3333-333333333334', '22222222-2222-2222-2222-222222222223', 'Apoyo secundario', '2026', 'Secundaria', 'Tarde', 'Agustina Esquiu')
+  ('33333333-3333-3333-3333-333333333331', '22222222-2222-2222-2222-222222222221', 'Taller de fonoaudiologia', '2026', 'Seccion', 'Mixto', 'Lic. Emilia Maidana'),
+  ('33333333-3333-3333-3333-333333333332', '22222222-2222-2222-2222-222222222221', 'Curso de verano intensivo', '2026', 'Intensivo', 'Verano', 'Lic. Emilia Maidana'),
+  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lectoescritura', '2026', 'Seccion', 'Tarde', 'Prof. Rosario Maidana')
 on conflict (id) do update
 set
   institution_id = excluded.institution_id,
@@ -63,10 +62,10 @@ insert into public.students (
   status
 )
 values
-  ('44444444-4444-4444-4444-444444444441', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333331', 'Juana', 'Rivera', '2016-07-20', 'Laura Rivera - 387 512 0014', 'Lectoescritura', 'Necesita sostener la secuencia de lectura diaria y seguimiento de produccion escrita.', 'requiere-seguimiento'),
-  ('44444444-4444-4444-4444-444444444442', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333332', 'Mateo', 'Campos', '2014-05-18', 'Juan Campos - 387 443 1882', 'Organizacion y estudio', 'Viene sosteniendo muy bien la planificacion semanal y la entrega de tareas en tiempo.', 'al-dia'),
+  ('44444444-4444-4444-4444-444444444441', '22222222-2222-2222-2222-222222222222', null, 'Juana', 'Rivera', '2016-07-20', 'Laura Rivera - 387 512 0014', 'Lectoescritura', 'Necesita sostener la secuencia de lectura diaria y seguimiento de produccion escrita.', 'requiere-seguimiento'),
+  ('44444444-4444-4444-4444-444444444442', '22222222-2222-2222-2222-222222222222', null, 'Mateo', 'Campos', '2014-05-18', 'Juan Campos - 387 443 1882', 'Organizacion y estudio', 'Viene sosteniendo muy bien la planificacion semanal y la entrega de tareas en tiempo.', 'al-dia'),
   ('44444444-4444-4444-4444-444444444443', '22222222-2222-2222-2222-222222222221', '33333333-3333-3333-3333-333333333333', 'Pilar', 'Soria', '2017-02-01', 'Micaela Soria - 387 411 9200', 'Conciencia fonologica', 'Ingreso reciente. Falta cargar observacion inicial completa y material para casa.', 'nuevo-ingreso'),
-  ('44444444-4444-4444-4444-444444444444', '22222222-2222-2222-2222-222222222223', '33333333-3333-3333-3333-333333333334', 'Santino', 'Diaz', '2011-10-09', 'Carla Diaz - 387 478 3321', 'Comprension lectora', 'Le cuesta sostener la entrega digital; conviene reforzar consignas claras y checklist.', 'requiere-seguimiento')
+  ('44444444-4444-4444-4444-444444444444', '22222222-2222-2222-2222-222222222223', null, 'Santino', 'Diaz', '2011-10-09', 'Carla Diaz - 387 478 3321', 'Comprension lectora', 'Le cuesta sostener la entrega digital; conviene reforzar consignas claras y checklist.', 'requiere-seguimiento')
 on conflict (id) do nothing;
 
 insert into public.student_professionals (id, student_id, professional_id)
@@ -111,10 +110,10 @@ insert into public.files (
   school_year
 )
 values
-  ('77777777-7777-7777-7777-777777777771', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333331', '44444444-4444-4444-4444-444444444441', 'Informe trimestral de Juana', 'students/44444444-4444-4444-4444-444444444441/reports/informe-trimestral-juana.pdf', 'Informe', 'Alumno', 'Privado', '3er grado', 'Lectoescritura', '1.8 MB', '2026'),
-  ('77777777-7777-7777-7777-777777777772', '11111111-1111-1111-1111-111111111112', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333332', null, 'Rutina semanal 5to B', 'institutions/22222222-2222-2222-2222-222222222222/courses/33333333-3333-3333-3333-333333333332/materials/rutina-semanal-5to-b.pdf', 'Material', 'Curso', 'Equipo', '5to grado', 'Habitos de estudio', '850 KB', '2026'),
+  ('77777777-7777-7777-7777-777777777771', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', null, '44444444-4444-4444-4444-444444444441', 'Informe trimestral de Juana', 'students/44444444-4444-4444-4444-444444444441/reports/informe-trimestral-juana.pdf', 'Informe', 'Alumno', 'Privado', '3er grado', 'Lectoescritura', '1.8 MB', '2026'),
+  ('77777777-7777-7777-7777-777777777772', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222221', '33333333-3333-3333-3333-333333333331', null, 'Material taller de fonoaudiologia', 'institutions/22222222-2222-2222-2222-222222222222/courses/33333333-3333-3333-3333-333333333332/materials/rutina-semanal-5to-b.pdf', 'Material', 'Curso', 'Equipo', null, 'Fonoaudiologia', '850 KB', '2026'),
   ('77777777-7777-7777-7777-777777777773', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222221', null, null, 'Planilla de asistencia marzo', 'institutions/22222222-2222-2222-2222-222222222221/materials/planilla-asistencia-marzo.pdf', 'Planilla', 'Institucion', 'Equipo', null, 'Gestion', '420 KB', '2026'),
-  ('77777777-7777-7777-7777-777777777774', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222223', '33333333-3333-3333-3333-333333333334', '44444444-4444-4444-4444-444444444444', 'Actividad casa Santino', 'students/44444444-4444-4444-4444-444444444444/assignments/actividad-casa-santino.pdf', 'Actividad', 'Alumno', 'Privado', null, 'Comprension', '2.1 MB', '2026'),
+  ('77777777-7777-7777-7777-777777777774', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222223', null, '44444444-4444-4444-4444-444444444444', 'Actividad casa Santino', 'students/44444444-4444-4444-4444-444444444444/assignments/actividad-casa-santino.pdf', 'Actividad', 'Alumno', 'Privado', null, 'Comprension', '2.1 MB', '2026'),
   ('77777777-7777-7777-7777-777777777775', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222221', '33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444443', 'Evaluacion inicial Pilar', 'students/44444444-4444-4444-4444-444444444443/evaluations/evaluacion-inicial-pilar.pdf', 'Evaluacion', 'Alumno', 'Equipo', null, 'Lenguaje', '1.1 MB', '2026'),
   ('77777777-7777-7777-7777-777777777776', '11111111-1111-1111-1111-111111111111', null, null, null, 'Cuadernillo compartido 1er grado', 'grades/1er-grado/material/cuadernillo-compartido-1er-grado.pdf', 'Material', 'Curso', 'Equipo', '1er grado', 'Lectoescritura', '980 KB', '2026'),
   ('77777777-7777-7777-7777-777777777777', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222225', null, null, 'Lecturas de 1er grado Santa Maria', 'institutions/22222222-2222-2222-2222-222222222225/grades/1er-grado/material/lecturas-1er-grado-santa-maria.pdf', 'Material', 'Curso', 'Equipo', '1er grado', 'Lectoescritura', '760 KB', '2026')
@@ -133,8 +132,8 @@ insert into public.schedule_events (
 )
 values
   ('88888888-8888-8888-8888-888888888881', '44444444-4444-4444-4444-444444444441', '11111111-1111-1111-1111-111111111112', 'Sesion individual - Juana Rivera', '2026-03-12', '15:00:00', '15:45:00', 'Andamio', 'confirmada'),
-  ('88888888-8888-8888-8888-888888888882', null, '11111111-1111-1111-1111-111111111112', 'Revision con docente 5to B', '2026-03-12', '16:15:00', '16:45:00', 'Llamada virtual', 'pendiente'),
-  ('88888888-8888-8888-8888-888888888883', '44444444-4444-4444-4444-444444444443', '11111111-1111-1111-1111-111111111111', 'Sesion grupal - Taller de lenguaje', '2026-03-14', '10:00:00', '11:00:00', 'Andamio', 'confirmada'),
+  ('88888888-8888-8888-8888-888888888882', null, '11111111-1111-1111-1111-111111111112', 'Revision con docente 5to grado', '2026-03-12', '16:15:00', '16:45:00', 'Llamada virtual', 'pendiente'),
+  ('88888888-8888-8888-8888-888888888883', '44444444-4444-4444-4444-444444444443', '11111111-1111-1111-1111-111111111111', 'Sesion grupal - Taller de fonoaudiologia', '2026-03-14', '10:00:00', '11:00:00', 'Andamio', 'confirmada'),
   ('88888888-8888-8888-8888-888888888884', '44444444-4444-4444-4444-444444444444', '11111111-1111-1111-1111-111111111113', 'Sesion individual - Santino Diaz', '2026-03-12', '18:15:00', '19:00:00', 'Colegio Belgrano', 'reprogramar'),
   ('88888888-8888-8888-8888-888888888885', '44444444-4444-4444-4444-444444444442', '11111111-1111-1111-1111-111111111112', 'Sesion individual - Mateo Campos', '2026-03-13', '17:30:00', '18:15:00', 'Andamio', 'confirmada')
 on conflict (id) do update

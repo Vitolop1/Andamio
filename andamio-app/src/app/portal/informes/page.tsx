@@ -26,7 +26,7 @@ export default async function StudentReportsPage() {
           </article>
           <article className="rounded-[24px] bg-[rgba(146,124,183,0.12)] p-5">
             <p className="text-sm font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
-              Curso
+              Seccion / taller
             </p>
             <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
               {data.student.courseName}

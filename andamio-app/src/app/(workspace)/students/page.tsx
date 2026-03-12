@@ -3,6 +3,7 @@ import { loadAppData } from "@/lib/app-data";
 import { PageHeader } from "@/components/page-header";
 import { SectionCard } from "@/components/section-card";
 import { StatusBadge } from "@/components/status-badge";
+import { getSectionNameLabel } from "@/lib/section-labels";
 import {
   formatDate,
   normalizeForSearch,
@@ -158,7 +159,7 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
               className="input-field"
               defaultValue={query}
               name="q"
-              placeholder="Buscar por nombre, colegio, curso o foco..."
+              placeholder="Buscar por nombre, colegio, seccion o foco..."
               type="search"
             />
           </form>
@@ -191,7 +192,7 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
                           {student.firstName} {student.lastName}
                         </p>
                         <p className="mt-1 text-sm muted-copy">
-                          {institution?.name ?? "Sin colegio"} - {course?.name ?? "Sin curso"}
+                          {institution?.name ?? "Sin colegio"} - {getSectionNameLabel(course?.name)}
                         </p>
                       </div>
                       <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
@@ -219,7 +220,7 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="eyebrow">
-                    {selectedInstitution?.name ?? "Sin colegio"} - {selectedCourse?.name ?? "Sin curso"}
+                    {selectedInstitution?.name ?? "Sin colegio"} - {getSectionNameLabel(selectedCourse?.name)}
                   </p>
                   <h2 className="mt-2 text-4xl font-semibold text-[var(--foreground)]">
                     {selectedStudent.firstName} {selectedStudent.lastName}

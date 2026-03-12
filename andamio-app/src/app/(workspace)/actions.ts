@@ -576,7 +576,7 @@ export async function createLibraryFileAction(formData: FormData) {
   const gradeLabel = optionalString(formData, "grade_label");
 
   if (scope === "Curso" && !courseId && !gradeLabel) {
-    throw new Error("Para un archivo de curso, elegi un grado o un curso puntual.");
+    throw new Error("Para un archivo compartido, elegi un grado o una seccion / taller.");
   }
 
   if (scope === "Alumno" && !studentId) {
@@ -625,7 +625,7 @@ export async function createLibraryFileAction(formData: FormData) {
       .single<{ institution_id: string }>();
 
     if (courseError || !courseRow) {
-      throw courseError ?? new Error("No se pudo resolver el curso seleccionado.");
+      throw courseError ?? new Error("No se pudo resolver la seccion / taller seleccionada.");
     }
 
     resolvedInstitutionId = courseRow.institution_id;
@@ -646,7 +646,7 @@ export async function createLibraryFileAction(formData: FormData) {
   if (scope === "Alumno" && studentId) {
     storagePath = `students/${studentId}/${folder}/${baseFileName}`;
   } else if (scope === "Curso" && resolvedInstitutionId && resolvedCourseId) {
-    storagePath = `institutions/${resolvedInstitutionId}/courses/${resolvedCourseId}/${folder}/${baseFileName}`;
+    storagePath = `institutions/${resolvedInstitutionId}/sections/${resolvedCourseId}/${folder}/${baseFileName}`;
   } else if (scope === "Curso" && resolvedInstitutionId && gradeFolder) {
     storagePath = `institutions/${resolvedInstitutionId}/${gradeFolder}/${folder}/${baseFileName}`;
   } else if (scope === "Curso" && gradeFolder) {
