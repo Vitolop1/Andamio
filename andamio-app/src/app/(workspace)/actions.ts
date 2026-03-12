@@ -5,10 +5,12 @@ import { Buffer } from "node:buffer";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  getAppStorageLimitBytes,
   hasSupabaseServiceRole,
   isDemoBypassEnabled,
 } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { formatStorageBytes, parseFileSizeLabel } from "@/lib/storage-quota";
 import {
   buildStudentPortalEmail,
   buildStudentPortalFullName,
@@ -83,6 +85,46 @@ function formatFileSize(value: number) {
   }
 
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+async function getCurrentStorageUsageBytes(
+  supabase:
+    | ReturnType<typeof createSupabaseAdminClient>
+    | Awaited<ReturnType<typeof createSupabaseServerClient>>,
+) {
+  const withBytes = await supabase
+    .from("files")
+    .select("file_size_bytes, file_size_label");
+
+  if (!withBytes.error) {
+    return (withBytes.data ?? []).reduce(
+      (total, row) =>
+        total +
+        (typeof row.file_size_bytes === "number" && row.file_size_bytes > 0
+          ? row.file_size_bytes
+          : parseFileSizeLabel(row.file_size_label)),
+      0,
+    );
+  }
+
+  const fallbackToLegacy = withBytes.error.message
+    .toLowerCase()
+    .includes("file_size_bytes");
+
+  if (!fallbackToLegacy) {
+    throw withBytes.error;
+  }
+
+  const fallback = await supabase.from("files").select("file_size_label");
+
+  if (fallback.error) {
+    throw fallback.error;
+  }
+
+  return (fallback.data ?? []).reduce(
+    (total, row) => total + parseFileSizeLabel(row.file_size_label),
+    0,
+  );
 }
 
 function toTimeMinutes(value: string) {
@@ -541,6 +583,22 @@ export async function createLibraryFileAction(formData: FormData) {
     throw new Error("Para un archivo de alumno, tenes que seleccionar el alumno.");
   }
 
+  const quotaClient = hasSupabaseServiceRole
+    ? createSupabaseAdminClient()
+    : actorContext.supabase;
+  const usedBytes = await getCurrentStorageUsageBytes(quotaClient);
+  const limitBytes = getAppStorageLimitBytes();
+  const nextUsage = usedBytes + fileInput.size;
+
+  if (nextUsage > limitBytes) {
+    const remainingBytes = Math.max(limitBytes - usedBytes, 0);
+    const message =
+      remainingBytes > 0
+        ? `No entra. Quedan ${formatStorageBytes(remainingBytes)} libres y este archivo pesa ${formatStorageBytes(fileInput.size)}.`
+        : "Se alcanzo el limite interno de almacenamiento.";
+    redirect(`/upload?error=${encodeURIComponent(message)}`);
+  }
+
   let resolvedInstitutionId = institutionId;
   let resolvedCourseId = courseId;
 
@@ -633,6 +691,7 @@ export async function createLibraryFileAction(formData: FormData) {
     grade_label: gradeLabel,
     subject: optionalString(formData, "subject"),
     file_size_label: formatFileSize(fileInput.size),
+    file_size_bytes: fileInput.size,
     school_year: optionalString(formData, "school_year"),
   };
 
@@ -641,7 +700,8 @@ export async function createLibraryFileAction(formData: FormData) {
   if (
     fileError &&
     (fileError.message.toLowerCase().includes("visibility") ||
-      fileError.message.toLowerCase().includes("grade_label"))
+      fileError.message.toLowerCase().includes("grade_label") ||
+      fileError.message.toLowerCase().includes("file_size_bytes"))
   ) {
     const fallbackPayload = {
       uploaded_by: filePayload.uploaded_by,

@@ -126,6 +126,7 @@ create table if not exists public.files (
   grade_label text,
   subject text,
   file_size_label text,
+  file_size_bytes bigint not null default 0,
   school_year text,
   created_at timestamptz not null default now()
 );

@@ -106,6 +106,7 @@ export interface LibraryFile {
   subject: string;
   year: string;
   sizeLabel: string;
+  sizeBytes?: number;
   uploadedAt: string;
   uploadedBy: string;
 }

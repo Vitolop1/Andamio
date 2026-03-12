@@ -10,6 +10,7 @@ interface FileUploadFormProps {
   institutions: Institution[];
   courses: Course[];
   students: Student[];
+  disableUploads?: boolean;
   defaultScope?: FileScope;
   defaultInstitutionId?: string;
   defaultCourseId?: string;
@@ -21,6 +22,7 @@ export function FileUploadForm({
   institutions,
   courses,
   students,
+  disableUploads = false,
   defaultScope = "Curso",
   defaultInstitutionId = "",
   defaultCourseId = "",
@@ -58,6 +60,7 @@ export function FileUploadForm({
           <span className="form-label">Archivo</span>
           <input
             className="input-field file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(146,124,183,0.12)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[var(--primary-strong)]"
+            disabled={disableUploads}
             name="document"
             onChange={(event) => setFileName(event.target.files?.[0]?.name ?? "")}
             required
@@ -241,6 +244,12 @@ export function FileUploadForm({
             Guardar archivo
           </button>
         </>
+      ) : null}
+
+      {disableUploads ? (
+        <div className="rounded-[24px] bg-[rgba(227,170,157,0.22)] px-5 py-4 text-base text-[var(--foreground)]">
+          La carga esta bloqueada porque se alcanzo el limite interno.
+        </div>
       ) : null}
     </form>
   );

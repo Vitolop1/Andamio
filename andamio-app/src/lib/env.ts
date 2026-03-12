@@ -8,6 +8,8 @@ export const hasSupabaseServiceRole = Boolean(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
+const DEFAULT_STORAGE_LIMIT_BYTES = 10_000_000_000;
+
 export const isDemoBypassEnabled =
   process.env.NEXT_PUBLIC_ENABLE_DEMO_BYPASS === "true";
 
@@ -34,4 +36,20 @@ export function getSupabaseServiceRoleKey() {
   }
 
   return serviceRoleKey;
+}
+
+export function getAppStorageLimitBytes() {
+  const rawValue = process.env.APP_STORAGE_LIMIT_BYTES;
+
+  if (!rawValue) {
+    return DEFAULT_STORAGE_LIMIT_BYTES;
+  }
+
+  const parsed = Number(rawValue);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_STORAGE_LIMIT_BYTES;
+  }
+
+  return Math.floor(parsed);
 }
