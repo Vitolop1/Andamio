@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
-import Script from "next/script";
 import { getSupabaseEnv } from "@/lib/env";
 import { buildPublicRuntimeConfigScript } from "@/lib/public-runtime-config";
 import { themeInitScript } from "@/lib/theme";
@@ -42,12 +41,11 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <Script
+        <script
           async
           crossOrigin="anonymous"
           id="adsense-site-verification"
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
-          strategy="beforeInteractive"
         />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
