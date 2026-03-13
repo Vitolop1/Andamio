@@ -45,8 +45,9 @@ export default function RootLayout({
         <Script
           async
           crossOrigin="anonymous"
+          id="adsense-site-verification"
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
