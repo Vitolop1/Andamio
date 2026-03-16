@@ -2,7 +2,7 @@ insert into public.profiles (id, full_name, email, role)
 values
   ('11111111-1111-1111-1111-111111111111', 'Lic. Emilia Maidana', 'emimaidanacornejo@gmail.com', 'admin'),
   ('11111111-1111-1111-1111-111111111112', 'Prof. Rosario Maidana', 'rochimaidanac@gmail.com', 'profesional'),
-  ('11111111-1111-1111-1111-111111111113', 'Prof. Agustina Esquiu', 'agustina@andamio.app', 'profesional'),
+  ('11111111-1111-1111-1111-111111111113', 'Prof. Agustina Esquiu', 'agusesquiu15@gmail.com', 'profesional'),
   ('11111111-1111-1111-1111-111111111114', 'Admin Andamio', 'admin@andamio.app', 'admin')
 on conflict (id) do update
 set

@@ -166,7 +166,7 @@ function getMockBundle(): AppDataBundle {
       {
         id: "11111111-1111-1111-1111-111111111113",
         name: "Prof. Agustina Esquiu",
-        email: "agustina@andamio.app",
+        email: "agusesquiu15@gmail.com",
         role: "profesional",
       },
     ],

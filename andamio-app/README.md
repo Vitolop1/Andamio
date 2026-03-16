@@ -80,7 +80,7 @@ Eso actualiza perfiles y usuarios Auth para:
 
 - `emimaidanacornejo@gmail.com`
 - `rochimaidanac@gmail.com`
-- `agustina@andamio.app`
+- `agusesquiu15@gmail.com`
 - `admin@andamio.app`
 
 ## Estructura util

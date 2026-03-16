@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -41,6 +40,7 @@ export function AppShell({
             height={120}
             priority
             src="/andamiologo.png"
+            unoptimized
             width={250}
           />
         </Link>
@@ -145,6 +145,7 @@ export function AppShell({
                 className="h-auto w-[210px] sm:w-[240px]"
                 height={96}
                 src="/andamiologo.png"
+                unoptimized
                 width={240}
               />
             </Link>

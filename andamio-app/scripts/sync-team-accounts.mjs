@@ -71,7 +71,7 @@ const accounts = [
   {
     profileId: "11111111-1111-1111-1111-111111111113",
     legacyEmails: ["rocio@andamio.app", "agustina@andamio.app"],
-    email: "agustina@andamio.app",
+    email: "agusesquiu15@gmail.com",
     fullName: "Prof. Agustina Esquiu",
     role: "profesional",
     password: "Agustina2026",

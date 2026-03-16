@@ -30,6 +30,7 @@ export default function Home() {
                 height={120}
                 priority
                 src="/andamiologo.png"
+                unoptimized
                 width={320}
               />
             </Link>

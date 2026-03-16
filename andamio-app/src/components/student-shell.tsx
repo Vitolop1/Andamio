@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,6 +45,7 @@ export function StudentShell({ children, studentName }: StudentShellProps) {
             height={110}
             priority
             src="/andamiologo.png"
+            unoptimized
             width={220}
           />
         </Link>

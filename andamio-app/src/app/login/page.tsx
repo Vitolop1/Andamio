@@ -34,6 +34,7 @@ export default async function LoginPage() {
             height={180}
             priority
             src="/andamiologo.png"
+            unoptimized
             width={400}
           />
           <p className="eyebrow mt-6">Acceso privado</p>
