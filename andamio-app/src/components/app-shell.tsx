@@ -30,7 +30,7 @@ export function AppShell({
 
   return (
     <div className="mx-auto grid min-h-screen max-w-[1640px] gap-6 px-4 py-4 lg:grid-cols-[290px_minmax(0,1fr)] lg:px-6">
-      <aside className="surface-card flex flex-col gap-6 p-5 lg:sticky lg:top-4 lg:h-fit">
+      <aside className="surface-card flex flex-col gap-6 p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
         <Link
           className="flex flex-col items-center rounded-[24px] bg-white/86 px-5 py-5 text-center shadow-[0_18px_46px_rgba(121,98,162,0.1)]"
           href="/"

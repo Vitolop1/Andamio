@@ -46,11 +46,20 @@ export default async function StudentDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        actionHref={`/upload?scope=Alumno&studentId=${student.id}&institutionId=${student.institutionId}&courseId=${student.courseId}`}
-        actionLabel="Subir material"
+        actionHref={`/students/${student.id}/edit`}
+        actionLabel="Editar alumno"
         eyebrow={`${institution?.name ?? "Institucion"} - ${getSectionNameLabel(course?.name)}`}
         title={`${student.firstName} ${student.lastName}`}
       />
+
+      <div className="flex flex-wrap gap-3">
+        <a
+          className="primary-button text-base"
+          href={`/upload?scope=Alumno&studentId=${student.id}&institutionId=${student.institutionId}&courseId=${student.courseId}`}
+        >
+          Subir material
+        </a>
+      </div>
 
       <section className="grid gap-4 xl:grid-cols-4 md:grid-cols-2">
         <MetricCard
@@ -89,6 +98,16 @@ export default async function StudentDetailPage({
               </p>
               <div className="mt-4 space-y-2 text-base muted-copy">
                 <p>Edad: {student.age} anos</p>
+                <p>
+                  Fecha de nacimiento:{" "}
+                  {student.birthDate
+                    ? formatDate(student.birthDate, {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "Sin cargar"}
+                </p>
                 <p>Profesional: {student.professional}</p>
                 <p>Contacto familiar: {student.familyContact}</p>
                 <p>Foco principal: {student.supportFocus}</p>

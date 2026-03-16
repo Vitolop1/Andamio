@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   Building2,
@@ -50,16 +49,6 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="surface-card px-7 py-8 text-center sm:px-10 sm:py-10">
-        <Link className="mx-auto flex w-fit justify-center" href="/">
-          <Image
-            alt="Logo de Andamio"
-            className="h-auto w-[220px] sm:w-[280px]"
-            height={150}
-            priority
-            src="/andamiologo.png"
-            width={280}
-          />
-        </Link>
         <p className="eyebrow mt-6">Dashboard principal</p>
         <h1 className="display-font mt-4 text-5xl font-semibold text-[var(--foreground)] sm:text-6xl">
           Inicio

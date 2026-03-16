@@ -15,8 +15,8 @@ export default async function CoursesPage() {
       <PageHeader
         actionHref="/students"
         actionLabel="Abrir alumnos"
-        eyebrow="Grupos y talleres"
-        title="Secciones y talleres"
+        eyebrow="Grupos, talleres y apoyo"
+        title="Secciones, talleres y clases de apoyo"
       />
 
       <SectionCard

@@ -39,7 +39,8 @@ insert into public.courses (id, institution_id, name, school_year, level, shift,
 values
   ('33333333-3333-3333-3333-333333333331', '22222222-2222-2222-2222-222222222221', 'Taller de fonoaudiologia', '2026', 'Seccion', 'Mixto', 'Lic. Emilia Maidana'),
   ('33333333-3333-3333-3333-333333333332', '22222222-2222-2222-2222-222222222221', 'Curso de verano intensivo', '2026', 'Intensivo', 'Verano', 'Lic. Emilia Maidana'),
-  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lectoescritura', '2026', 'Seccion', 'Tarde', 'Prof. Rosario Maidana')
+  ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222221', 'Taller de lectoescritura', '2026', 'Seccion', 'Tarde', 'Prof. Rosario Maidana'),
+  ('33333333-3333-3333-3333-333333333334', '22222222-2222-2222-2222-222222222221', 'Clases de apoyo', '2026', 'Apoyo', 'Flexible', 'Prof. Rosario Maidana')
 on conflict (id) do update
 set
   institution_id = excluded.institution_id,

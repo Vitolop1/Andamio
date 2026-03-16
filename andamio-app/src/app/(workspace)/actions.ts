@@ -497,6 +497,46 @@ async function ensureStudentPortalAccount(options: {
   };
 }
 
+async function assertStudentAccess(options: {
+  supabase:
+    | ReturnType<typeof createSupabaseAdminClient>
+    | Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  actor: ActorProfile;
+  studentId: string;
+}) {
+  if (options.actor.role === "admin") {
+    return;
+  }
+
+  const { data: relation, error } = await options.supabase
+    .from("student_professionals")
+    .select("student_id")
+    .eq("student_id", options.studentId)
+    .eq("professional_id", options.actor.id)
+    .maybeSingle<{ student_id: string }>();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!relation) {
+    throw new Error("No tienes permiso para modificar este alumno.");
+  }
+}
+
+function revalidateStudentViews(studentId?: string | null) {
+  revalidatePath("/");
+  revalidatePath("/dashboard");
+  revalidatePath("/students");
+  revalidatePath("/library");
+  revalidatePath("/schedule");
+
+  if (studentId) {
+    revalidatePath(`/students/${studentId}`);
+    revalidatePath(`/students/${studentId}/edit`);
+  }
+}
+
 export async function createInstitutionAction(formData: FormData) {
   const { supabase, actor } = await resolveActorProfile();
 
@@ -570,11 +610,128 @@ export async function createStudentAction(formData: FormData) {
     lastName,
   });
 
-  revalidatePath("/");
-  revalidatePath("/dashboard");
-  revalidatePath("/students");
-  revalidatePath(`/students/${student.id}`);
+  revalidateStudentViews(student.id);
   redirect(`/students/${student.id}`);
+}
+
+export async function updateStudentAction(formData: FormData) {
+  const { supabase, actor } = await resolveActorProfile();
+  const studentId = requiredString(formData, "student_id");
+
+  await assertStudentAccess({
+    supabase,
+    actor,
+    studentId,
+  });
+
+  const institutionId = requiredString(formData, "institution_id");
+  const courseId = optionalString(formData, "course_id");
+  const assignedProfessionalId =
+    optionalString(formData, "professional_id") ?? actor.id;
+  const firstName = requiredString(formData, "first_name");
+  const lastName = requiredString(formData, "last_name");
+  const status = (optionalString(formData, "status") ??
+    "nuevo-ingreso") as StudentStatus;
+
+  const { error: updateError } = await supabase
+    .from("students")
+    .update({
+      institution_id: institutionId,
+      course_id: courseId,
+      first_name: firstName,
+      last_name: lastName,
+      birth_date: optionalString(formData, "birth_date"),
+      family_contact: optionalString(formData, "family_contact"),
+      support_focus: optionalString(formData, "support_focus"),
+      notes: optionalString(formData, "notes"),
+      status,
+    })
+    .eq("id", studentId);
+
+  if (updateError) {
+    throw updateError;
+  }
+
+  const { error: deleteRelationsError } = await supabase
+    .from("student_professionals")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteRelationsError) {
+    throw deleteRelationsError;
+  }
+
+  const { error: relationError } = await supabase
+    .from("student_professionals")
+    .insert({
+      id: randomUUID(),
+      student_id: studentId,
+      professional_id: assignedProfessionalId,
+    });
+
+  if (relationError) {
+    throw relationError;
+  }
+
+  revalidateStudentViews(studentId);
+  redirect(`/students/${studentId}`);
+}
+
+export async function deleteStudentAction(formData: FormData) {
+  const { supabase, actor } = await resolveActorProfile();
+  const studentId = requiredString(formData, "student_id");
+
+  await assertStudentAccess({
+    supabase,
+    actor,
+    studentId,
+  });
+
+  const { data: portalAccount } = await supabase
+    .from("student_portal_accounts")
+    .select("profile_id")
+    .eq("student_id", studentId)
+    .maybeSingle<{ profile_id: string }>();
+
+  const { error: deleteFilesError } = await supabase
+    .from("files")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteFilesError) {
+    throw deleteFilesError;
+  }
+
+  const { error: deleteEventsError } = await supabase
+    .from("schedule_events")
+    .delete()
+    .eq("student_id", studentId);
+
+  if (deleteEventsError) {
+    throw deleteEventsError;
+  }
+
+  const { error: deleteStudentError } = await supabase
+    .from("students")
+    .delete()
+    .eq("id", studentId);
+
+  if (deleteStudentError) {
+    throw deleteStudentError;
+  }
+
+  if (portalAccount?.profile_id) {
+    if (hasSupabaseServiceRole()) {
+      const adminClient = createSupabaseAdminClient();
+      await adminClient.auth.admin.deleteUser(portalAccount.profile_id);
+      await adminClient.from("profiles").delete().eq("id", portalAccount.profile_id);
+    } else {
+      await supabase.from("profiles").delete().eq("id", portalAccount.profile_id);
+    }
+  }
+
+  revalidateStudentViews(studentId);
+  redirect("/students");
 }
 
 export async function createProfessionalAction(formData: FormData) {

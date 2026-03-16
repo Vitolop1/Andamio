@@ -35,7 +35,7 @@ export function StudentShell({ children, studentName }: StudentShellProps) {
 
   return (
     <div className="mx-auto grid min-h-screen max-w-[1480px] gap-6 px-4 py-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-6">
-      <aside className="surface-card flex flex-col gap-6 p-5 lg:sticky lg:top-4 lg:h-fit">
+      <aside className="surface-card flex flex-col gap-6 p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
         <Link
           className="flex flex-col items-center rounded-[24px] bg-white/86 px-5 py-5 text-center"
           href="/portal/informes"

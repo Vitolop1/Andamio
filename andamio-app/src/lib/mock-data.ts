@@ -25,7 +25,7 @@ export const institutions: Institution[] = [
     province: "Salta",
     lead: "Lic. Emilia Maidana",
     activeStudents: 1,
-    activeCourses: 3,
+    activeCourses: 4,
     lastUpdate: "Actualizado hoy",
   },
   {
@@ -204,6 +204,17 @@ export const courses: Course[] = [
     studentCount: 0,
     subjects: ["Lectoescritura", "Comprension", "Produccion escrita"],
   },
+  {
+    id: "course-clases-apoyo",
+    institutionId: "inst-andamio",
+    name: "Clases de apoyo",
+    schoolYear: "2026",
+    level: "Apoyo",
+    shift: "Flexible",
+    teacher: "Prof. Rosario Maidana",
+    studentCount: 0,
+    subjects: ["Apoyo escolar", "Habitos de estudio", "Refuerzo"],
+  },
 ];
 
 export const students: Student[] = [
@@ -212,6 +223,7 @@ export const students: Student[] = [
     firstName: "Juana",
     lastName: "Rivera",
     age: 9,
+    birthDate: "2016-07-20",
     institutionId: "inst-santo-tomas",
     courseId: "",
     professional: "Prof. Rosario Maidana",
@@ -231,6 +243,7 @@ export const students: Student[] = [
     firstName: "Mateo",
     lastName: "Campos",
     age: 11,
+    birthDate: "2014-05-18",
     institutionId: "inst-santo-tomas",
     courseId: "",
     professional: "Prof. Rosario Maidana",
@@ -250,6 +263,7 @@ export const students: Student[] = [
     firstName: "Pilar",
     lastName: "Soria",
     age: 8,
+    birthDate: "2017-02-01",
     institutionId: "inst-andamio",
     courseId: "course-taller-fono",
     professional: "Lic. Emilia Maidana",
@@ -269,6 +283,7 @@ export const students: Student[] = [
     firstName: "Santino",
     lastName: "Diaz",
     age: 14,
+    birthDate: "2011-10-09",
     institutionId: "inst-belgrano",
     courseId: "",
     professional: "Prof. Agustina Esquiu",

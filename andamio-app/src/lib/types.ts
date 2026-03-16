@@ -60,6 +60,7 @@ export interface Student {
   firstName: string;
   lastName: string;
   age: number;
+  birthDate?: string | null;
   institutionId: string;
   courseId: string;
   professional: string;

@@ -507,6 +507,7 @@ export const loadAppData = cache(async (): Promise<AppDataBundle> => {
         firstName: student.first_name,
         lastName: student.last_name,
         age: calculateAge(student.birth_date),
+        birthDate: student.birth_date,
         institutionId: student.institution_id,
         courseId: student.course_id ?? "",
         professional:

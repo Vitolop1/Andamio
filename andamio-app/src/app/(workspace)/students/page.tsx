@@ -238,6 +238,12 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
                   ) : null}
                   <Link
                     className="secondary-button text-base"
+                    href={`/students/${selectedStudent.id}/edit`}
+                  >
+                    Editar alumno
+                  </Link>
+                  <Link
+                    className="secondary-button text-base"
                     href={`/students/${selectedStudent.id}`}
                   >
                     Abrir ficha completa
@@ -279,6 +285,20 @@ export default async function StudentsPage({ searchParams }: StudentsPageProps) 
                   </p>
                   <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
                     {selectedStudent.supportFocus}
+                  </p>
+                </article>
+                <article className="rounded-[24px] bg-[rgba(255,255,255,0.82)] p-5 md:col-span-3">
+                  <p className="text-sm font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
+                    Fecha de nacimiento
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
+                    {selectedStudent.birthDate
+                      ? formatDate(selectedStudent.birthDate, {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "Sin cargar"}
                   </p>
                 </article>
               </div>
